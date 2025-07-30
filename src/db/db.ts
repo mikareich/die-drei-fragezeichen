@@ -1,10 +1,11 @@
 import { createClient } from '@libsql/client'
 import { drizzle } from 'drizzle-orm/libsql'
 
-const path = './public/dreimetadaten.db'
-// process.env.NODE_ENV === 'development'
-//   ? './public/dreimetadaten.db'
-//   : `https://${process.env.VERCEL_URL}/dreimetadaten.db`
+if (!process.env.DATABASE_URL || !process.env.DATABASE_TOKEN)
+  throw new Error('Database credentials not set')
 
-const client = createClient({ url: `file:${path}` })
+const client = createClient({
+  url: process.env.DATABASE_URL,
+  authToken: process.env.DATABASE_TOKEN,
+})
 export const db = drizzle(client)
