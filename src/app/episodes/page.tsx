@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getEpisodesByQuery } from '~/actions/episode'
-import DataTable from '~/components/Table'
+import DataTable from '~/components/DataTable'
 
 type EpisodesPageParams = {
   searchParams: Promise<{ page: string; search: string }>

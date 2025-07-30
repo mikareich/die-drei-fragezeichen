@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getPeopleByQuery } from '~/actions/people'
-import DataTable from '~/components/Table'
+import DataTable from '~/components/DataTable'
 import { LOC_NA_CONTENT } from '~/utils/constants'
 import { LIST_FORMAT } from '~/utils/format'
 
