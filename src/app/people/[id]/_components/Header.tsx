@@ -14,7 +14,10 @@ export default function Header({ person }: HeaderProps) {
     ...person.scriptsAuthored,
   ])
 
-  const roles = person.roles.intersection(new Set(["Autor"]))
+  const roles = new Set()
+  if (person.roles.has("Autor") || person.booksAuthored.size > 0 || person.scriptsAuthored.size > 0) {
+    roles.add("Autor")
+  }
   if (person.episodesCasted.size > 0) roles.add("Synchronsprecher")
 
   const firstEpisode = allEpisodes
