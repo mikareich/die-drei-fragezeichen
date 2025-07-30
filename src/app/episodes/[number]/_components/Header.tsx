@@ -9,13 +9,12 @@ type HeaderProps = {
 }
 
 export default function Header({ episode }: HeaderProps) {
-  const authors = new Set([
-    ...episode.bookAuthors.values(),
-    ...episode.scriptAuthors.values(),
-  ])
-    .values()
-    .toArray()
-    .map((author) => author.name)
+  const authors = Array.from(
+    new Set([
+      ...Array.from(episode.bookAuthors.values()),
+      ...Array.from(episode.scriptAuthors.values()),
+    ])
+  ).map((author) => author.name)
 
   return (
     <header className="grid grid-cols-[1fr_auto] grid-rows-[1fr_auto] gap-x-16 gap-y-8 overflow-hidden overflow-y-hidden border-gray-200 border-b pb-4">

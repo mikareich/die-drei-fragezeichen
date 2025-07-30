@@ -8,7 +8,7 @@
 		"class-variance-authority": "^0.7.1",
 		"drizzle-kit": "^0.31.4",
 		"drizzle-orm": "^0.44.3",
-		"next": "^15.4.0-canary.122",
+		"next": "^15.4.5",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
 		"tailwind-merge": "^3.3.0"
