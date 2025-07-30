@@ -1,0 +1,15 @@
+@import "tailwindcss/index.css";
+
+@theme {
+  --ddf-black: #f5f5f5;
+  --ddf-red: #c82228;
+  --ddf-blue: #60a9e8;
+}
+
+@theme inline {
+  --font-mono: var(--font-geist-mono, Fira Code);
+}
+
+::selection {
+  @apply bg-gray-950 text-gray-50;
+}
