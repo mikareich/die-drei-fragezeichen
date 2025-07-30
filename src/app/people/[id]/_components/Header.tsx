@@ -14,7 +14,7 @@ export default function Header({ person }: HeaderProps) {
     ...person.scriptsAuthored,
   ])
 
-  const roles = new Set()
+  const roles = new Set<string>()
   if (person.roles.has("Autor") || person.booksAuthored.size > 0 || person.scriptsAuthored.size > 0) {
     roles.add("Autor")
   }
