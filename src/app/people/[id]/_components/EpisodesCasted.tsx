@@ -8,13 +8,10 @@ type EpisodesCastedProps = {
 
 export default function EpisodesCasted({ person }: EpisodesCastedProps) {
   const roles = Array.from(person.episodesCasted.values())
-    .reduce(
-      (acc, episode) => [
-        ...acc,
-        { episode, role: episode.cast.get(person.id)?.role },
-      ],
-      [] as { episode: Episode; role: string | undefined }[],
-    )
+    .map(episode => ({
+      episode,
+      role: episode.cast.get(person.id)?.role
+    }))
 
   return (
     <Label description="Synchronisierte Folgen">
