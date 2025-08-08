@@ -1,0 +1,6 @@
+{
+  "name": "die-drei-fragezeichen",
+  "forwardPorts": [3000],
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "runArgs": ["--name", "die-drei-fragezeichen"]
+}

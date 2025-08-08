@@ -1,8 +1,12 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   experimental: {
     useCache: true,
+  },
+  outputFileTracingIncludes: {
+    '/*': ['./node_modules/@libsql/**/*'],
   },
   images: {
     remotePatterns: [
