@@ -15,15 +15,22 @@ export default function Header({ person }: HeaderProps) {
   ])
 
   const roles = new Set<string>()
-  if (person.roles.has("Autor") || person.booksAuthored.size > 0 || person.scriptsAuthored.size > 0) {
-    roles.add("Autor")
+  if (
+    person.roles.has('Autor') ||
+    person.booksAuthored.size > 0 ||
+    person.scriptsAuthored.size > 0
+  ) {
+    roles.add('Autor')
   }
-  if (person.episodesCasted.size > 0) roles.add("Synchronsprecher")
+  if (person.episodesCasted.size > 0) roles.add('Synchronsprecher')
 
   const episodes = Array.from(allEpisodes.values())
-  const firstEpisode = episodes.length > 0
-    ? episodes.reduce((acc, ep) => (ep.releaseDate < acc.releaseDate ? ep : acc))
-    : null
+  const firstEpisode =
+    episodes.length > 0
+      ? episodes.reduce((acc, ep) =>
+          ep.releaseDate < acc.releaseDate ? ep : acc,
+        )
+      : null
 
   return (
     <header className="space-y-8 border-gray-200 border-b pb-4">
@@ -37,7 +44,9 @@ export default function Header({ person }: HeaderProps) {
       <div className="flex items-end justify-between gap-4 overflow-y-hidden max-lg:col-span-2 lg:flex-wrap">
         <Label description="Erste Folge">
           <h6 className="truncate font-medium">
-            {firstEpisode ? DATE_FORMAT.format(firstEpisode.releaseDate) : LOC_NA_CONTENT}
+            {firstEpisode
+              ? DATE_FORMAT.format(firstEpisode.releaseDate)
+              : LOC_NA_CONTENT}
           </h6>
         </Label>
 

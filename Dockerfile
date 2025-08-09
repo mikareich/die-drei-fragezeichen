@@ -17,7 +17,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 
-RUN npm run build
+RUN --mount=type=secret,id=SST_RESOURCE_DDF-Bucket,env=SST_RESOURCE_DDF-Bucket \
+    --mount=type=secret,id=SST_RESOURCE_DATABASE_URL,env=SST_RESOURCE_DATABASE_URL \
+    --mount=type=secret,id=SST_RESOURCE_DATABASE_TOKEN,env=SST_RESOURCE_DATABASE_TOKEN \
+    npm run build
 
 
 FROM base AS runner

@@ -13,7 +13,7 @@ export default function Header({ episode }: HeaderProps) {
     new Set([
       ...Array.from(episode.bookAuthors.values()),
       ...Array.from(episode.scriptAuthors.values()),
-    ])
+    ]),
   ).map((author) => author.name)
 
   return (

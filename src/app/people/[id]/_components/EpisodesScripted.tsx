@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import type { Person } from '~/utils/types'
 import Label from '~/components/Label'
+import type { Person } from '~/utils/types'
 
 type ScriptsAuthoredProps = {
   person: Person

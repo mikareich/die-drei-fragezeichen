@@ -1,12 +1,16 @@
 import { createClient } from '@libsql/client'
 import { drizzle } from 'drizzle-orm/libsql'
+import { Resource } from 'sst'
 
-if (!process.env.DATABASE_URL || !process.env.DATABASE_TOKEN)
+const DATABASE_URL = Resource.DATABASE_URL.value
+const DATABASE_TOKEN = Resource.DATABASE_TOKEN.value
+
+if (!DATABASE_URL || !DATABASE_TOKEN)
   throw new Error('Database credentials not set')
 
 const client = createClient({
-  url: process.env.DATABASE_URL,
-  authToken: process.env.DATABASE_TOKEN,
+  url: DATABASE_URL,
+  authToken: DATABASE_TOKEN,
 })
 
 export const db = drizzle(client)

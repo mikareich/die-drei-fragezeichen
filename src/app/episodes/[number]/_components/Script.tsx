@@ -29,7 +29,11 @@ function Speach({ speach, episode }: RoleIndicatorProps) {
       {!isAmbient && (
         <cite className="text-gray-500 text-sm not-italic">
           {speaker && (
-            <Link className="underline" href={`/people/${speaker.id}`} prefetch={true}>
+            <Link
+              className="underline"
+              href={`/people/${speaker.id}`}
+              prefetch={true}
+            >
               {characterName}
             </Link>
           )}
@@ -71,7 +75,11 @@ export default async function Script({ episode, page }: ScriptProps) {
         ))}
       </ol>
 
-      <Link className="text-gray-500 underline" href={`?page=${page + 1}`} prefetch={true}>
+      <Link
+        className="text-gray-500 underline"
+        href={`?page=${page + 1}`}
+        prefetch={true}
+      >
         Mehr laden...
       </Link>
     </Label>

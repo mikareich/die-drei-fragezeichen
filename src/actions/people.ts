@@ -3,7 +3,7 @@
 import { asc, eq, inArray, or, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
 import { EPISODE_SUBQUERY, PEOPLE_SUBQUERY } from '~/db/subqueries'
-import { ITEM_LIMIT } from '~/utils/constants'
+import { ITEM_LIMIT, NUMBER_OF_PEOPLE } from '~/utils/constants'
 import { parseEpisodes } from '~/utils/parseEpisodes'
 import { parsePerson } from '~/utils/parsePerson'
 import type { Person } from '~/utils/types'
@@ -25,8 +25,6 @@ export async function getPerson(id: number): Promise<Person | null> {
 
   return person || null
 }
-
-const NUMBER_OF_PEOPLE = await db.$count(PEOPLE_SUBQUERY)
 
 type PeopleResults = {
   people: Person[]

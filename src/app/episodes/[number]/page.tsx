@@ -19,8 +19,6 @@ export default async function EpisodePage(props: EpisodePageProps) {
   const number = Number(params.number)
   const episode = await getEpisodeByNumber(number)
 
-  console.log("cast map: ", episode?.cast.size)
-
   const page = Number(searchParams.page) || 1
 
   if (!episode) notFound()

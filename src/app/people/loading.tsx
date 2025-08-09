@@ -1,4 +1,4 @@
-export default function EpsiodesLoadingPage() {
+export default function PeopleLoadingPage() {
   return (
     <main className="space-y-10">
       <h3 className="font-light text-lg">
@@ -8,7 +8,7 @@ export default function EpsiodesLoadingPage() {
         hier wirst du fündig.
       </h3>
 
-      <p>Folgen werden geladen...</p>
+      <p>Personen werden geladen...</p>
     </main>
   )
 }

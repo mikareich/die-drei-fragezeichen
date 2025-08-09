@@ -1,19 +1,12 @@
 'use server'
 
-import { countDistinct, eq, inArray, or, sql } from 'drizzle-orm'
+import { eq, inArray, or, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
 import { schema } from '~/db/schema'
 import { EPISODE_SUBQUERY } from '~/db/subqueries'
-import { ITEM_LIMIT } from '~/utils/constants'
+import { ITEM_LIMIT, NUMBER_OF_EPISODES } from '~/utils/constants'
 import { parseEpisodes } from '~/utils/parseEpisodes'
 import type { Episode } from '~/utils/types'
-
-const NUMBER_OF_EPISODES = await db
-  .select({
-    count: countDistinct(schema.series.number),
-  })
-  .from(schema.series)
-  .then((data) => Number(data[0].count))
 
 /** Returns episode by ep number */
 export async function getEpisodeByNumber(
