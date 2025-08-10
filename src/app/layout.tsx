@@ -3,7 +3,6 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Geist_Mono } from 'next/font/google'
 import type React from 'react'
-import { transferCoverToBucket } from '~/actions/cover'
 import NavBar from '~/components/NavBar'
 import Provider from '~/components/Provider'
 
@@ -21,8 +20,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  transferCoverToBucket(1)
-
   return (
     <html lang="de">
       <body

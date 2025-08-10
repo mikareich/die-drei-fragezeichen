@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: 'standalone',
   experimental: {
     useCache: true,
   },
@@ -11,8 +11,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: 'dreimetadaten.de',
-        pathname: '/data/Serie/**',
+        hostname: 'assets.ddf-archiv.de',
+        pathname: '/covers/*.png',
         protocol: 'https',
       },
     ],

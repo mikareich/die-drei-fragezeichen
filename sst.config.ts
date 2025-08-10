@@ -13,7 +13,7 @@ export default $config({
     const vpc = new sst.aws.Vpc('DDF-Vpc')
     const cluster = new sst.aws.Cluster('DDF-Cluster', { vpc })
     const bucket = new sst.aws.Bucket('DDF-Bucket', {
-      access: 'public',
+      access: 'cloudfront',
       cors: {
         allowMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
         allowOrigins: ['*'],
@@ -24,7 +24,7 @@ export default $config({
     const DATABASE_TOKEN = new sst.Secret('DATABASE_TOKEN')
     const DATABASE_URL = new sst.Secret('DATABASE_URL')
 
-    new sst.aws.Service('DDF-Website', {
+    const service = new sst.aws.Service('DDF-Website', {
       link: [bucket, DATABASE_URL, DATABASE_TOKEN],
       cluster,
       loadBalancer: {
@@ -40,5 +40,23 @@ export default $config({
         },
       ],
     })
+
+    const isProd = $app.stage === 'production'
+    const rootDomain = 'ddf-archiv.de'
+
+    const siteDomain = isProd ? rootDomain : `${$app.stage}.${rootDomain}`
+
+    const router = new sst.aws.Router('DDF-Router', {
+      domain: {
+        name: siteDomain,
+        aliases: isProd
+          ? [`www.${rootDomain}`, `assets.${rootDomain}`]
+          : [`assets.${siteDomain}`],
+      },
+    })
+
+    router.routeBucket(`assets.${siteDomain}`, bucket)
+    router.route(siteDomain, service.url)
+    if (isProd) router.route(`www.${rootDomain}`, service.url)
   },
 })

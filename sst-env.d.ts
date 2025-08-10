@@ -17,6 +17,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "DDF-Router": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "DDF-Vpc": {
       "type": "sst.aws.Vpc"
     }

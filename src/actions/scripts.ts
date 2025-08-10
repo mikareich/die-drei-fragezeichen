@@ -1,16 +1,13 @@
 'use server'
 
-import { GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
-import { s3 } from '~/utils/s3'
-
-const BUCKET_NAME = 'die-drei-fragezeichen-scripts'
+const _BUCKET_NAME = 'die-drei-fragezeichen-scripts'
 
 export type Script = { content: string; role: string }[]
 
 /** returns part from s3 bucket including until the specified part */
 export async function getScriptUntilPart(
-  id: number,
-  maxPage: number,
+  _id: number,
+  _maxPage: number,
 ): Promise<Script | null> {
   'use cache'
 

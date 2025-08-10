@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Label from '~/components/Label'
-import type { Episode, Person } from '~/utils/types'
+import type { Person } from '~/utils/types'
 
 type EpisodesCastedProps = {
   person: Person
