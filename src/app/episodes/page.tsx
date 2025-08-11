@@ -33,7 +33,7 @@ export default async function EpsiodesPage(params: EpisodesPageParams) {
       episode.description,
       <Link
         className="truncate text-gray-500 uppercase underline"
-        href={`/episodes/${episode.formattedID}`}
+        href={`/episodes/${episode.number}`}
         key={`link/${episode.number}`}
         prefetch={true}
       >

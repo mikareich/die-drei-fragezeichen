@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 import { getEpisodeByNumber } from '~/actions/episode'
 import Label from '~/components/Label'
+import { db } from '~/db/db'
+import { EPISODE_SUBQUERY } from '~/db/subqueries'
 import Cast from './_components/Cast'
 import Header from './_components/Header'
 import Script from './_components/Script'
@@ -12,15 +14,19 @@ type EpisodePageProps = {
   searchParams: Promise<{ page?: string }>
 }
 
+export async function generateStaticParams() {
+  const ids = await db
+    .selectDistinct({ id: EPISODE_SUBQUERY.metadata.number })
+    .from(EPISODE_SUBQUERY)
+
+  return ids.map(({ id }) => ({ id: String(id) }))
+}
+
 export default async function EpisodePage(props: EpisodePageProps) {
   const params = await props.params
-  const searchParams = await props.searchParams
-
   const number = Number(params.number)
+
   const episode = await getEpisodeByNumber(number)
-
-  const page = Number(searchParams.page) || 1
-
   if (!episode) notFound()
 
   return (
@@ -42,7 +48,7 @@ export default async function EpisodePage(props: EpisodePageProps) {
           </Label>
         }
       >
-        <Script episode={episode} page={page} />
+        <Script episode={episode} page={1} />
       </React.Suspense>
     </main>
   )

@@ -32,7 +32,7 @@ export default function EpisodesCasted({ person }: EpisodesCastedProps) {
               <span className="text-gray-700">{episode.formattedID}. </span>
               <Link
                 className="font-bold underline"
-                href={`/episodes/${episode.formattedID}`}
+                href={`/episodes/${episode.number}`}
                 prefetch={true}
               >
                 {episode.title}

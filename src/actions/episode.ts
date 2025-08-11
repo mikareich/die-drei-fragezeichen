@@ -1,14 +1,24 @@
 'use server'
 
-import { eq, inArray, or, sql } from 'drizzle-orm'
+import { countDistinct, eq, inArray, or, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
 import { schema } from '~/db/schema'
 import { EPISODE_SUBQUERY } from '~/db/subqueries'
-import { ITEM_LIMIT, NUMBER_OF_EPISODES } from '~/utils/constants'
+import { ITEM_LIMIT } from '~/utils/constants'
 import { parseEpisodes } from '~/utils/parseEpisodes'
 import type { Episode } from '~/utils/types'
 
-/** Returns episode by ep number */
+export async function getNumberOfEpisodes() {
+  'use cache'
+
+  const count = await db
+    .select({ count: countDistinct(EPISODE_SUBQUERY.metadata.number) })
+    .from(EPISODE_SUBQUERY)
+    .then((data) => Number(data[0].count))
+
+  return count
+}
+
 export async function getEpisodeByNumber(
   episodeNumber: number,
 ): Promise<Episode | null> {
@@ -52,7 +62,8 @@ export async function getEpisodesByQuery(
   'use cache'
 
   try {
-    const totalPages = Math.max(1, Math.ceil(NUMBER_OF_EPISODES / limit))
+    const numberOfEpisodes = await getNumberOfEpisodes()
+    const totalPages = Math.max(1, Math.ceil(numberOfEpisodes / limit))
     const currentPage = Math.min(Math.max(1, page), totalPages)
     const offset = (currentPage - 1) * limit
 

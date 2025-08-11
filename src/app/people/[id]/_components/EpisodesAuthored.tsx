@@ -25,7 +25,7 @@ export default function BooksAuthored({ person }: BooksAuthoredProps) {
 
               <Link
                 className="font-bold underline"
-                href={`/episodes/${episode.formattedID}`}
+                href={`/episodes/${episode.number}`}
                 prefetch={true}
               >
                 {episode.title}

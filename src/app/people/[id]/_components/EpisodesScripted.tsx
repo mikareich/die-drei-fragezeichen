@@ -25,7 +25,7 @@ export default function ScriptsAuthored({ person }: ScriptsAuthoredProps) {
 
               <Link
                 className="font-bold underline"
-                href={`/episodes/${episode.formattedID}`}
+                href={`/episodes/${episode.number}`}
                 prefetch={true}
               >
                 {episode.title}

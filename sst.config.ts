@@ -12,14 +12,10 @@ export default $config({
   async run() {
     const vpc = new sst.aws.Vpc('DDF-Vpc')
     const cluster = new sst.aws.Cluster('DDF-Cluster', { vpc })
-    const bucket = new sst.aws.Bucket('DDF-Bucket', {
-      access: 'cloudfront',
-      cors: {
-        allowMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
-        allowOrigins: ['*'],
-        allowHeaders: ['*'],
-      },
-    })
+
+    const bucketName =
+      $app.stage === 'production' ? 'ddf-productio' : 'ddf-mikareich'
+    const bucket = sst.aws.Bucket.get('DDF-Bucket', bucketName)
 
     const DATABASE_TOKEN = new sst.Secret('DATABASE_TOKEN')
     const DATABASE_URL = new sst.Secret('DATABASE_URL')

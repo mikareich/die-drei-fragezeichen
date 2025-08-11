@@ -1,12 +1,23 @@
 'use server'
 
-import { asc, eq, inArray, or, sql } from 'drizzle-orm'
+import { asc, countDistinct, eq, inArray, or, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
 import { EPISODE_SUBQUERY, PEOPLE_SUBQUERY } from '~/db/subqueries'
-import { ITEM_LIMIT, NUMBER_OF_PEOPLE } from '~/utils/constants'
+import { ITEM_LIMIT } from '~/utils/constants'
 import { parseEpisodes } from '~/utils/parseEpisodes'
 import { parsePerson } from '~/utils/parsePerson'
 import type { Person } from '~/utils/types'
+
+export async function getNumberOfPeople() {
+  'use cache'
+
+  const count = await db
+    .select({ count: countDistinct(PEOPLE_SUBQUERY.id) })
+    .from(PEOPLE_SUBQUERY)
+    .then((data) => Number(data[0].count))
+
+  return count
+}
 
 export async function getPerson(id: number): Promise<Person | null> {
   'use cache'
@@ -40,7 +51,8 @@ export async function getPeopleByQuery(
   'use cache'
 
   try {
-    const totalPages = Math.max(1, Math.ceil(NUMBER_OF_PEOPLE / limit))
+    const numberOfPeople = await getNumberOfPeople()
+    const totalPages = Math.max(1, Math.ceil(numberOfPeople / limit))
     const currentPage = Math.min(Math.max(1, page), totalPages)
     const offset = (currentPage - 1) * limit
 

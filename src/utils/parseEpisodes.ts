@@ -60,7 +60,7 @@ function parseSingleEpisode(result: RawEpisodeResult[]): Episode | null {
   const formattedID = String(rawData.metadata.number).padStart(3, '0')
   const title = rawData.metadata.title
   const description = rawData.metadata.description
-  const coverImage = `https://assets.ddf-archiv.de/covers/${id}.png`
+  const coverImage = `https://assets.ddf-archiv.de/covers/${number}.png`
   const releaseDate = new Date(rawData.metadata.releaseDate)
 
   const parts = new Map<number, string>()
