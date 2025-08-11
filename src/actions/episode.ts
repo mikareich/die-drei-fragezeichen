@@ -1,19 +1,18 @@
 'use server'
 
-import { countDistinct, eq, inArray, or, sql } from 'drizzle-orm'
+import { countDistinct, eq, inArray, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
-import { schema } from '~/db/schema'
-import { EPISODE_SUBQUERY } from '~/db/subqueries'
+import { views } from '~/db/views'
 import { ITEM_LIMIT } from '~/utils/constants'
-import { parseEpisodes } from '~/utils/parseEpisodes'
+import { parseEpisode, parseEpisodes } from '~/utils/parseEpisode'
 import type { Episode } from '~/utils/types'
 
 export async function getNumberOfEpisodes() {
   'use cache'
 
   const count = await db
-    .select({ count: countDistinct(EPISODE_SUBQUERY.metadata.number) })
-    .from(EPISODE_SUBQUERY)
+    .select({ count: countDistinct(views.episodeView.number) })
+    .from(views.episodeView)
     .then((data) => Number(data[0].count))
 
   return count
@@ -24,28 +23,11 @@ export async function getEpisodeByNumber(
 ): Promise<Episode | null> {
   'use cache'
 
-  const episodes = await db
+  return db
     .select()
-    .from(EPISODE_SUBQUERY)
-    .where(
-      or(
-        eq(EPISODE_SUBQUERY.metadata.number, episodeNumber),
-        inArray(
-          EPISODE_SUBQUERY.metadata.id,
-          db
-            .select({ id: schema.part.part })
-            .from(schema.part)
-            .innerJoin(
-              schema.series,
-              eq(schema.part.episodeID, schema.series.episodeID),
-            )
-            .where(eq(schema.series.number, episodeNumber)),
-        ),
-      ),
-    )
-    .then(parseEpisodes)
-
-  return episodes.at(0) || null
+    .from(views.episodeView)
+    .where(eq(views.episodeView.number, episodeNumber))
+    .then(parseEpisode)
 }
 
 type EpisodeResults = {
@@ -69,22 +51,20 @@ export async function getEpisodesByQuery(
 
     const episodeIDs = await db
       .selectDistinct({
-        id: schema.metadata.episodeID,
+        id: views.episodeView.episodeId,
       })
-      .from(schema.metadata)
-      .innerJoin(
-        schema.series,
-        eq(schema.series.episodeID, schema.metadata.episodeID),
+      .from(views.episodeView)
+      .where(
+        sql`${views.episodeView.title} LIKE ${`%${query}%`} COLLATE NOCASE`,
       )
-      .where(sql`${schema.metadata.title} LIKE ${`%${query}%`} COLLATE NOCASE`)
       .limit(limit)
       .offset(offset)
       .then((data) => data.map(({ id }) => id))
 
     const episodes = await db
       .select()
-      .from(EPISODE_SUBQUERY)
-      .where(inArray(EPISODE_SUBQUERY.metadata.id, episodeIDs))
+      .from(views.episodeView)
+      .where(inArray(views.episodeView.episodeId, episodeIDs))
       .then(parseEpisodes)
 
     return { episodes, page: currentPage, totalPages }

@@ -44,6 +44,9 @@ export const peopleView = sqliteTable(
   {
     id: integer().notNull(),
     name: text().notNull(),
+    roles: text(), // JSON string of roles
+    pseudonyms: text(), // JSON string of pseudonyms
+    contributed: integer().notNull().default(0),
   },
   (table) => [primaryKey({ columns: [table.id] })],
 )

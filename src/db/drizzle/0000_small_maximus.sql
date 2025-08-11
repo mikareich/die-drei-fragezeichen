@@ -190,5 +190,8 @@ CREATE TABLE `episode_view` (
 --> statement-breakpoint
 CREATE TABLE `people_view` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`name` text NOT NULL
+	`name` text NOT NULL,
+	`roles` text,
+	`pseudonyms` text,
+	`contributed` integer DEFAULT 0 NOT NULL
 );

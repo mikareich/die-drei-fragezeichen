@@ -2,18 +2,17 @@
 
 import { asc, countDistinct, eq, inArray, or, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
-import { EPISODE_SUBQUERY, PEOPLE_SUBQUERY } from '~/db/subqueries'
+import { views } from '~/db/views'
 import { ITEM_LIMIT } from '~/utils/constants'
-import { parseEpisodes } from '~/utils/parseEpisodes'
-import { parsePerson } from '~/utils/parsePerson'
+import { parsePeople, parsePerson } from '~/utils/parsePerson'
 import type { Person } from '~/utils/types'
 
 export async function getNumberOfPeople() {
   'use cache'
 
   const count = await db
-    .select({ count: countDistinct(PEOPLE_SUBQUERY.id) })
-    .from(PEOPLE_SUBQUERY)
+    .select({ count: countDistinct(views.peopleView.id) })
+    .from(views.peopleView)
     .then((data) => Number(data[0].count))
 
   return count
@@ -22,19 +21,19 @@ export async function getNumberOfPeople() {
 export async function getPerson(id: number): Promise<Person | null> {
   'use cache'
 
-  const person = await db
+  return db
     .select()
-    .from(EPISODE_SUBQUERY)
-    .where(
+    .from(views.peopleView)
+    .leftJoin(
+      views.episodeView,
       or(
-        eq(EPISODE_SUBQUERY.cast.id, id),
-        eq(EPISODE_SUBQUERY.bookAuthor.id, id),
-        eq(EPISODE_SUBQUERY.scriptAuthor.id, id),
+        eq(views.episodeView.castPersonId, views.peopleView.id),
+        eq(views.episodeView.bookAuthorId, views.peopleView.id),
+        eq(views.episodeView.scriptAuthorId, views.peopleView.id),
       ),
     )
-    .then((raw) => parsePerson(id, parseEpisodes(raw)))
-
-  return person || null
+    .where(eq(views.peopleView.id, id))
+    .then(parsePerson)
 }
 
 type PeopleResults = {
@@ -56,40 +55,37 @@ export async function getPeopleByQuery(
     const currentPage = Math.min(Math.max(1, page), totalPages)
     const offset = (currentPage - 1) * limit
 
-    const peopleIDs = await db
-      .select({ id: PEOPLE_SUBQUERY.id })
-      .from(PEOPLE_SUBQUERY)
-      .where(sql`${PEOPLE_SUBQUERY.name} LIKE ${`%${query}%`} COLLATE NOCASE`)
-      .orderBy(asc(PEOPLE_SUBQUERY.name))
+    const peopleIds = await db
+      .select({ id: views.peopleView.id })
+      .from(views.peopleView)
+      .where(sql`${views.peopleView.name} LIKE ${`%${query}%`} COLLATE NOCASE`)
+      .orderBy(asc(views.peopleView.name))
       .limit(limit)
       .offset(offset)
-      .then((data) => data.map(({ id }) => id))
+      .then((data) => data.map((p) => p.id))
+
+    if (peopleIds.length === 0) {
+      return { page: currentPage, people: [], totalPages }
+    }
 
     const people = await db
       .select()
-      .from(EPISODE_SUBQUERY)
-      .where(
+      .from(views.peopleView)
+      .leftJoin(
+        views.episodeView,
         or(
-          inArray(EPISODE_SUBQUERY.cast.id, peopleIDs),
-          inArray(EPISODE_SUBQUERY.bookAuthor.id, peopleIDs),
-          inArray(EPISODE_SUBQUERY.scriptAuthor.id, peopleIDs),
+          eq(views.episodeView.castPersonId, views.peopleView.id),
+          eq(views.episodeView.bookAuthorId, views.peopleView.id),
+          eq(views.episodeView.scriptAuthorId, views.peopleView.id),
         ),
       )
-      .then((result) => {
-        const people = []
-
-        for (const id of peopleIDs) {
-          const person = parsePerson(id, parseEpisodes(result))
-          people.push(person)
-        }
-
-        return people
-      })
+      .where(inArray(views.peopleView.id, peopleIds))
+      .orderBy(asc(views.peopleView.name))
+      .then(parsePeople)
 
     return { page: currentPage, people, totalPages }
   } catch (error) {
     console.error(error)
-
     return null
   }
 }

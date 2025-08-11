@@ -1,5 +1,6 @@
 import type { SQL } from 'drizzle-orm'
 import type { EPISODE_SUBQUERY } from '~/db/subqueries'
+import type { views } from '~/db/views'
 
 type UnwrapSQL<T> = T extends SQL<infer U>
   ? U
@@ -22,6 +23,10 @@ export type SubqueryResult<T> = T extends {
 export type RawEpisodeResult = SubqueryResult<
   typeof EPISODE_SUBQUERY
 >['episode']
+
+export type EpisodeView = typeof views.episodeView.$inferSelect
+
+export type PeopleView = typeof views.peopleView.$inferSelect
 
 export type Speaker = {
   id: number

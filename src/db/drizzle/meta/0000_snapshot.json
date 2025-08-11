@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "fb079a79-db7a-40e9-9db5-3691b32db567",
+  "id": "21efb158-95aa-4f1a-a454-0a93cd828680",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "hörspielBuchautor": {
@@ -1299,6 +1299,28 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "roles": {
+          "name": "roles",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pseudonyms": {
+          "name": "pseudonyms",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "contributed": {
+          "name": "contributed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         }
       },
       "indexes": {},

@@ -3,8 +3,7 @@ import React from 'react'
 import { getEpisodeByNumber } from '~/actions/episode'
 import Label from '~/components/Label'
 import { db } from '~/db/db'
-import { schema } from '~/db/schema'
-import { EPISODE_SUBQUERY } from '~/db/subqueries'
+import { views } from '~/db/views'
 import Cast from './_components/Cast'
 import Header from './_components/Header'
 import Script from './_components/Script'
@@ -16,11 +15,11 @@ type EpisodePageProps = {
 }
 
 export async function generateStaticParams() {
-  const ids = await db
-    .selectDistinct({ number: EPISODE_SUBQUERY.metadata.number })
-    .from(EPISODE_SUBQUERY)
+  const numbers = await db
+    .selectDistinct({ number: views.episodeView.number })
+    .from(views.episodeView)
 
-  return ids.map(({ number }) => ({ number: String(number || 1) }))
+  return numbers.map(({ number }) => ({ number: String(number || 1) }))
 }
 
 export default async function EpisodePage(props: EpisodePageProps) {
@@ -28,10 +27,6 @@ export default async function EpisodePage(props: EpisodePageProps) {
   const number = Number(params.number)
 
   const episode = await getEpisodeByNumber(number)
-
-  const test = await db.select().from(schema.metadata)
-
-  console.log(test)
   if (!episode) notFound()
 
   return (
