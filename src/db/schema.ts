@@ -1,4 +1,10 @@
-import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import {
+  integer,
+  primaryKey,
+  sqliteTable,
+  text,
+  unique,
+} from 'drizzle-orm/sqlite-core'
 
 export const metadata = sqliteTable('hörspiel', {
   cover: integer('cover').notNull(),
@@ -41,7 +47,10 @@ export const part = sqliteTable(
       }),
     position: integer('position').notNull(),
   },
-  (table) => [primaryKey({ columns: [table.episodeID, table.part] })],
+  (table) => ({
+    uniqueEpisodePosition: unique().on(table.episodeID, table.position),
+    uniqueEpisodeLetter: unique().on(table.episodeID, table.letter),
+  }),
 )
 
 export const series = sqliteTable('serie', {
@@ -53,6 +62,59 @@ export const series = sqliteTable('serie', {
       onUpdate: 'cascade',
     }),
   number: integer('nummer').primaryKey().notNull(),
+})
+
+export const special = sqliteTable('spezial', {
+  episodeID: integer('hörspielID')
+    .primaryKey()
+    .notNull()
+    .references(() => metadata.episodeID, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
+  position: integer('position').notNull().unique(),
+})
+
+export const shortStories = sqliteTable('kurzgeschichten', {
+  episodeID: integer('hörspielID')
+    .primaryKey()
+    .notNull()
+    .references(() => metadata.episodeID, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
+})
+
+export const dieDr3i = sqliteTable('dieDr3i', {
+  episodeID: integer('hörspielID')
+    .primaryKey()
+    .notNull()
+    .references(() => metadata.episodeID, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
+  number: integer('nummer'),
+})
+
+export const kids = sqliteTable('kids', {
+  episodeID: integer('hörspielID')
+    .primaryKey()
+    .notNull()
+    .references(() => metadata.episodeID, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
+  number: integer('nummer'),
+})
+
+export const other = sqliteTable('sonstige', {
+  episodeID: integer('hörspielID')
+    .primaryKey()
+    .notNull()
+    .references(() => metadata.episodeID, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
 })
 
 export const person = sqliteTable('person', {
@@ -72,86 +134,124 @@ export const role = sqliteTable('rolle', {
   roleID: integer('rolleID').primaryKey().notNull(),
 })
 
-export const speakerRole = sqliteTable('sprechrolle', {
-  episodeID: integer('hörspielID')
-    .notNull()
-    .references(() => metadata.episodeID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-  position: integer('position').notNull().unique(),
-  roleID: integer('rolleID')
-    .notNull()
-    .unique()
-    .references(() => role.roleID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-  speakerRoleID: integer('sprechrolleID').primaryKey({ autoIncrement: true }),
-})
+export const speakerRole = sqliteTable(
+  'sprechrolle',
+  {
+    episodeID: integer('hörspielID')
+      .notNull()
+      .references(() => metadata.episodeID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    position: integer('position').notNull(),
+    roleID: integer('rolleID')
+      .notNull()
+      .references(() => role.roleID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    speakerRoleID: integer('sprechrolleID').primaryKey({ autoIncrement: true }),
+  },
+  (table) => ({
+    uniqueEpisodeRole: unique().on(table.episodeID, table.roleID),
+    uniqueEpisodePosition: unique().on(table.episodeID, table.position),
+  }),
+)
 
-export const speakerRolePart = sqliteTable('sprechrolleTeil', {
-  episodeID: integer('hörspielID')
-    .notNull()
-    .references(() => metadata.episodeID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-  position: integer('position').notNull(),
-  speakerRoleID: integer('sprechrolleID')
-    .notNull()
-    .references(() => role.roleID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-})
+export const speakerRolePart = sqliteTable(
+  'sprechrolleTeil',
+  {
+    episodeID: integer('hörspielID')
+      .notNull()
+      .references(() => metadata.episodeID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    position: integer('position').notNull(),
+    speakerRoleID: integer('sprechrolleID')
+      .notNull()
+      .references(() => speakerRole.speakerRoleID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.speakerRoleID, table.episodeID] }),
+    uniqueEpisodePosition: unique().on(table.episodeID, table.position),
+  }),
+)
 
-export const speaks = sqliteTable('spricht', {
-  personID: integer('personID')
-    .notNull()
-    .references(() => person.personID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-  position: integer('position').notNull(),
-  pseudonymID: integer('pseudonymID'),
-  speakerRoleID: integer('sprechrolleID')
-    .notNull()
-    .references(() => role.roleID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-})
+export const speaks = sqliteTable(
+  'spricht',
+  {
+    personID: integer('personID')
+      .notNull()
+      .references(() => person.personID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    position: integer('position').notNull(),
+    pseudonymID: integer('pseudonymID').references(
+      () => pseudonym.pseudonymID,
+      {
+        onDelete: 'set null',
+        onUpdate: 'cascade',
+      },
+    ),
+    speakerRoleID: integer('sprechrolleID')
+      .notNull()
+      .references(() => speakerRole.speakerRoleID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.speakerRoleID, table.personID] }),
+    uniqueSpeakerRolePosition: unique().on(table.speakerRoleID, table.position),
+  }),
+)
 
-export const bookAuthor = sqliteTable('hörspielBuchautor', {
-  episodeID: integer('hörspielID')
-    .notNull()
-    .references(() => metadata.episodeID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-  personID: integer('personID')
-    .notNull()
-    .references(() => person.personID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-})
+export const bookAuthor = sqliteTable(
+  'hörspielBuchautor',
+  {
+    episodeID: integer('hörspielID')
+      .notNull()
+      .references(() => metadata.episodeID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    personID: integer('personID')
+      .notNull()
+      .references(() => person.personID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.episodeID, table.personID] }),
+  }),
+)
 
-export const scriptAuthor = sqliteTable('hörspielSkriptautor', {
-  episodeID: integer('hörspielID')
-    .notNull()
-    .references(() => metadata.episodeID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-  personID: integer('personID')
-    .notNull()
-    .references(() => person.personID, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-})
+export const scriptAuthor = sqliteTable(
+  'hörspielSkriptautor',
+  {
+    episodeID: integer('hörspielID')
+      .notNull()
+      .references(() => metadata.episodeID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    personID: integer('personID')
+      .notNull()
+      .references(() => person.personID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.episodeID, table.personID] }),
+  }),
+)
 
 export const medium = sqliteTable('medium', {
   episodeID: integer('hörspielID')
@@ -166,13 +266,24 @@ export const medium = sqliteTable('medium', {
   ripLog: integer('ripLog', { mode: 'boolean' }).notNull(),
 })
 
-export const track = sqliteTable('track', {
-  duration: integer('dauer').notNull(),
-  mediumID: integer('mediumID').notNull().unique(),
-  position: integer('position').notNull().unique(),
-  title: text('titel').notNull(),
-  trackID: integer('trackID').primaryKey(),
-})
+export const track = sqliteTable(
+  'track',
+  {
+    duration: integer('dauer').notNull(),
+    mediumID: integer('mediumID')
+      .notNull()
+      .references(() => medium.mediumID, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    position: integer('position').notNull(),
+    title: text('titel').notNull(),
+    trackID: integer('trackID').primaryKey({ autoIncrement: true }),
+  },
+  (table) => ({
+    uniqueTrackPosition: unique().on(table.mediumID, table.position),
+  }),
+)
 
 export const chapter = sqliteTable('kapitel', {
   alternativeTitle: text('abweichenderTitel'),
@@ -202,14 +313,19 @@ export const version = sqliteTable('version', {
 export const schema = {
   bookAuthor,
   chapter,
+  dieDr3i,
+  kids,
   medium,
   metadata,
+  other,
   part,
   person,
   pseudonym,
   role,
   scriptAuthor,
   series,
+  shortStories,
+  special,
   speakerRole,
   speakerRolePart,
   speaks,

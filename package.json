@@ -29,9 +29,11 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "db:dash": "drizzle-kit studio",
-    "db:gen": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
+    "db:dash": "sst shell -- drizzle-kit studio",
+    "db:gen": "sst shell -- drizzle-kit generate",
+    "db:push": "sst shell -- drizzle-kit push",
+    "db:pull": "sst shell -- drizzle-kit pull",
+    "db:sync": "sst shell -- npx tsx src/db/sync.ts",
     "dev": "next dev --turbo",
     "lint": "next lint",
     "start": "next start"

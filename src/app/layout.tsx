@@ -5,6 +5,9 @@ import { Geist_Mono } from 'next/font/google'
 import type React from 'react'
 import NavBar from '~/components/NavBar'
 import Provider from '~/components/Provider'
+import { db } from '~/db/db'
+import { schema } from '~/db/schema'
+import { EPISODE_SUBQUERY, PEOPLE_SUBQUERY } from '~/db/subqueries'
 
 const geistMono = Geist_Mono({
   subsets: ['latin'],

@@ -1,11 +1,12 @@
 import { defineConfig } from 'drizzle-kit'
+import { Resource } from 'sst'
 
 export default defineConfig({
   dbCredentials: {
-    url: process.env.DATABASE_URL as string,
-    token: process.env.DATABASE_TOKEN as string,
+    url: Resource.DATABASE_URL.value,
+    authToken: Resource.DATABASE_TOKEN.value,
   },
-  dialect: 'sqlite',
+  dialect: 'turso',
   out: './src/db/drizzle',
-  schema: './src/db/schema.ts',
+  schema: ['./src/db/schema.ts', './src/db/views.ts'],
 })
