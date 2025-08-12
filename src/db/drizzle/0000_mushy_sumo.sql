@@ -21,6 +21,27 @@ CREATE TABLE `dieDr3i` (
 	FOREIGN KEY (`hörspielID`) REFERENCES `hörspiel`(`hörspielID`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `episode_view` (
+	`description` text,
+	`episodeId` integer NOT NULL,
+	`number` integer,
+	`releaseDate` text,
+	`title` text NOT NULL,
+	`trackDuration` integer,
+	`trackPosition` integer,
+	`trackTitle` text,
+	`trackPart` integer,
+	`castPersonId` integer,
+	`castName` text,
+	`castPseudonym` text,
+	`castRole` text,
+	`bookAuthorId` integer,
+	`bookAuthorName` text,
+	`scriptAuthorId` integer,
+	`scriptAuthorName` text,
+	PRIMARY KEY(`episodeId`, `trackPosition`, `trackPart`, `castPersonId`, `bookAuthorId`, `scriptAuthorId`)
+);
+--> statement-breakpoint
 CREATE TABLE `kids` (
 	`hörspielID` integer PRIMARY KEY NOT NULL,
 	`nummer` integer,
@@ -72,6 +93,14 @@ CREATE TABLE `hörspielTeil` (
 --> statement-breakpoint
 CREATE UNIQUE INDEX `hörspielTeil_hörspiel_position_unique` ON `hörspielTeil` (`hörspiel`,`position`);--> statement-breakpoint
 CREATE UNIQUE INDEX `hörspielTeil_hörspiel_buchstabe_unique` ON `hörspielTeil` (`hörspiel`,`buchstabe`);--> statement-breakpoint
+CREATE TABLE `people_view` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`roles` text,
+	`pseudonyms` text,
+	`contributed` integer DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `person` (
 	`name` text NOT NULL,
 	`personID` integer PRIMARY KEY AUTOINCREMENT NOT NULL
@@ -165,33 +194,4 @@ CREATE TABLE `version` (
 	`major` integer NOT NULL,
 	`minor` integer NOT NULL,
 	`patch` integer NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE `episode_view` (
-	`description` text,
-	`episodeId` integer NOT NULL,
-	`number` integer,
-	`releaseDate` text,
-	`title` text NOT NULL,
-	`trackDuration` integer,
-	`trackPosition` integer,
-	`trackTitle` text,
-	`trackPart` integer,
-	`castPersonId` integer,
-	`castName` text,
-	`castPseudonym` text,
-	`castRole` text,
-	`bookAuthorId` integer,
-	`bookAuthorName` text,
-	`scriptAuthorId` integer,
-	`scriptAuthorName` text,
-	PRIMARY KEY(`episodeId`, `trackPosition`, `trackPart`, `castPersonId`, `bookAuthorId`, `scriptAuthorId`)
-);
---> statement-breakpoint
-CREATE TABLE `people_view` (
-	`id` integer PRIMARY KEY NOT NULL,
-	`name` text NOT NULL,
-	`roles` text,
-	`pseudonyms` text,
-	`contributed` integer DEFAULT 0 NOT NULL
 );

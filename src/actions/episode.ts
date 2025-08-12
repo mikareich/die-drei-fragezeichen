@@ -2,7 +2,7 @@
 
 import { countDistinct, eq, inArray, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
-import { views } from '~/db/views'
+import { episodes } from '~/db/schema'
 import { ITEM_LIMIT } from '~/utils/constants'
 import { parseEpisode, parseEpisodes } from '~/utils/parseEpisode'
 import type { Episode } from '~/utils/types'
@@ -11,8 +11,8 @@ export async function getNumberOfEpisodes() {
   'use cache'
 
   const count = await db
-    .select({ count: countDistinct(views.episodeView.number) })
-    .from(views.episodeView)
+    .select({ count: countDistinct(episodes.number) })
+    .from(episodes)
     .then((data) => Number(data[0].count))
 
   return count
@@ -25,8 +25,8 @@ export async function getEpisodeByNumber(
 
   return db
     .select()
-    .from(views.episodeView)
-    .where(eq(views.episodeView.number, episodeNumber))
+    .from(episodes)
+    .where(eq(episodes.number, episodeNumber))
     .then(parseEpisode)
 }
 
@@ -51,20 +51,18 @@ export async function getEpisodesByQuery(
 
     const episodeIDs = await db
       .selectDistinct({
-        id: views.episodeView.episodeId,
+        id: episodes.episodeId,
       })
-      .from(views.episodeView)
-      .where(
-        sql`${views.episodeView.title} LIKE ${`%${query}%`} COLLATE NOCASE`,
-      )
+      .from(episodes)
+      .where(sql`${episodes.title} LIKE ${`%${query}%`} COLLATE NOCASE`)
       .limit(limit)
       .offset(offset)
       .then((data) => data.map(({ id }) => id))
 
     const episodes = await db
       .select()
-      .from(views.episodeView)
-      .where(inArray(views.episodeView.episodeId, episodeIDs))
+      .from(episodes)
+      .where(inArray(episodes.episodeId, episodeIDs))
       .then(parseEpisodes)
 
     return { episodes, page: currentPage, totalPages }

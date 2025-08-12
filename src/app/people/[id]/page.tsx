@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getPerson } from '~/actions/people'
 import { db } from '~/db/db'
-import { PEOPLE_SUBQUERY } from '~/db/subqueries'
+import { people } from '~/db/schema'
 import BooksAuthored from './_components/EpisodesAuthored'
 import EpisodesCasted from './_components/EpisodesCasted'
 import ScriptsAuthored from './_components/EpisodesScripted'
@@ -12,16 +12,12 @@ type DetailedProfilePageProps = {
 }
 
 export async function generateStaticParams() {
-  const ids = await db
-    .selectDistinct({ id: PEOPLE_SUBQUERY.id })
-    .from(PEOPLE_SUBQUERY)
+  const ids = await db.selectDistinct({ id: people.id }).from(people)
 
   return ids.map(({ id }) => ({ id: String(id) }))
 }
 
-export default async function PersonPage(
-  props: DetailedProfilePageProps,
-) {
+export default async function PersonPage(props: DetailedProfilePageProps) {
   const params = await props.params
   const id = Number(params.id)
 

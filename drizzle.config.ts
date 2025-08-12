@@ -8,5 +8,5 @@ export default defineConfig({
   },
   dialect: 'turso',
   out: './src/db/drizzle',
-  schema: ['./src/db/schema.ts', './src/db/views.ts'],
+  schema: './src/db/schema.ts',
 })

@@ -2,7 +2,7 @@
 
 import { asc, countDistinct, eq, inArray, or, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
-import { views } from '~/db/views'
+import { episodes, people } from '~/db/schema'
 import { ITEM_LIMIT } from '~/utils/constants'
 import { parsePeople, parsePerson } from '~/utils/parsePerson'
 import type { Person } from '~/utils/types'
@@ -11,8 +11,8 @@ export async function getNumberOfPeople() {
   'use cache'
 
   const count = await db
-    .select({ count: countDistinct(views.peopleView.id) })
-    .from(views.peopleView)
+    .select({ count: countDistinct(people.id) })
+    .from(people)
     .then((data) => Number(data[0].count))
 
   return count
@@ -23,16 +23,16 @@ export async function getPerson(id: number): Promise<Person | null> {
 
   return db
     .select()
-    .from(views.peopleView)
+    .from(people)
     .leftJoin(
-      views.episodeView,
+      episodes,
       or(
-        eq(views.episodeView.castPersonId, views.peopleView.id),
-        eq(views.episodeView.bookAuthorId, views.peopleView.id),
-        eq(views.episodeView.scriptAuthorId, views.peopleView.id),
+        eq(episodes.castPersonId, people.id),
+        eq(episodes.bookAuthorId, people.id),
+        eq(episodes.scriptAuthorId, people.id),
       ),
     )
-    .where(eq(views.peopleView.id, id))
+    .where(eq(people.id, id))
     .then(parsePerson)
 }
 
@@ -56,10 +56,10 @@ export async function getPeopleByQuery(
     const offset = (currentPage - 1) * limit
 
     const peopleIds = await db
-      .select({ id: views.peopleView.id })
-      .from(views.peopleView)
-      .where(sql`${views.peopleView.name} LIKE ${`%${query}%`} COLLATE NOCASE`)
-      .orderBy(asc(views.peopleView.name))
+      .select({ id: people.id })
+      .from(people)
+      .where(sql`${people.name} LIKE ${`%${query}%`} COLLATE NOCASE`)
+      .orderBy(asc(people.name))
       .limit(limit)
       .offset(offset)
       .then((data) => data.map((p) => p.id))
@@ -68,22 +68,22 @@ export async function getPeopleByQuery(
       return { page: currentPage, people: [], totalPages }
     }
 
-    const people = await db
+    const peopleData = await db
       .select()
-      .from(views.peopleView)
+      .from(people)
       .leftJoin(
-        views.episodeView,
+        episodes,
         or(
-          eq(views.episodeView.castPersonId, views.peopleView.id),
-          eq(views.episodeView.bookAuthorId, views.peopleView.id),
-          eq(views.episodeView.scriptAuthorId, views.peopleView.id),
+          eq(episodes.castPersonId, people.id),
+          eq(episodes.bookAuthorId, people.id),
+          eq(episodes.scriptAuthorId, people.id),
         ),
       )
-      .where(inArray(views.peopleView.id, peopleIds))
-      .orderBy(asc(views.peopleView.name))
+      .where(inArray(people.id, peopleIds))
+      .orderBy(asc(people.name))
       .then(parsePeople)
 
-    return { page: currentPage, people, totalPages }
+    return { page: currentPage, people: peopleData, totalPages }
   } catch (error) {
     console.error(error)
     return null

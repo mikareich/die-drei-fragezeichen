@@ -1,32 +1,8 @@
-import type { SQL } from 'drizzle-orm'
-import type { EPISODE_SUBQUERY } from '~/db/subqueries'
-import type { views } from '~/db/views'
+import type { episodes, people } from '~/db/schema'
 
-type UnwrapSQL<T> = T extends SQL<infer U>
-  ? U
-  : T extends SQL.Aliased<infer U>
-    ? U
-    : T extends { _: { data: infer D } }
-      ? D
-      : T extends object
-        ? { [K in keyof T]: UnwrapSQL<T[K]> }
-        : T
+export type EpisodeView = typeof episodes.$inferSelect
 
-export type SubqueryResult<T> = T extends {
-  _: { alias: infer A; selectedFields: infer S }
-}
-  ? A extends string
-    ? { [K in A]: UnwrapSQL<S> }
-    : never
-  : never
-
-export type RawEpisodeResult = SubqueryResult<
-  typeof EPISODE_SUBQUERY
->['episode']
-
-export type EpisodeView = typeof views.episodeView.$inferSelect
-
-export type PeopleView = typeof views.peopleView.$inferSelect
+export type PeopleView = typeof people.$inferSelect
 
 export type Speaker = {
   id: number

@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { sql } from 'drizzle-orm'
 import { db } from './db'
-import { views } from './views'
+import { episodes, people } from './schema'
 
 async function dropProblematicViews() {
   try {
@@ -18,7 +18,7 @@ async function dropProblematicViews() {
 }
 
 async function syncEpisodeView() {
-  await db.delete(views.episodeView)
+  await db.delete(episodes)
 
   const sql = await readFile(new URL('./syncEpisodes.sql', import.meta.url), {
     encoding: 'utf-8',
@@ -27,7 +27,7 @@ async function syncEpisodeView() {
 }
 
 async function syncPeopleView() {
-  await db.delete(views.peopleView)
+  await db.delete(people)
 
   const sql = await readFile(new URL('syncPeople.sql', import.meta.url), {
     encoding: 'utf-8',

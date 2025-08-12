@@ -310,25 +310,53 @@ export const version = sqliteTable('version', {
   patch: integer('patch').notNull(),
 })
 
-export const schema = {
-  bookAuthor,
-  chapter,
-  dieDr3i,
-  kids,
-  medium,
-  metadata,
-  other,
-  part,
-  person,
-  pseudonym,
-  role,
-  scriptAuthor,
-  series,
-  shortStories,
-  special,
-  speakerRole,
-  speakerRolePart,
-  speaks,
-  track,
-  version,
-}
+export const episodes = sqliteTable(
+  'episode_view',
+  {
+    description: text(),
+    episodeId: integer().notNull(),
+    number: integer(),
+    releaseDate: text(),
+    title: text().notNull(),
+
+    trackDuration: integer(),
+    trackPosition: integer(),
+    trackTitle: text(),
+    trackPart: integer(),
+
+    castPersonId: integer(),
+    castName: text(),
+    castPseudonym: text(),
+    castRole: text(),
+
+    bookAuthorId: integer(),
+    bookAuthorName: text(),
+
+    scriptAuthorId: integer(),
+    scriptAuthorName: text(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [
+        table.episodeId,
+        table.trackPosition,
+        table.trackPart,
+        table.castPersonId,
+        table.bookAuthorId,
+        table.scriptAuthorId,
+      ],
+    }),
+  ],
+)
+
+export const people = sqliteTable(
+  'people_view',
+  {
+    id: integer().notNull(),
+    name: text().notNull(),
+    roles: text(),
+    pseudonyms: text(),
+    contributed: integer().notNull().default(0),
+  },
+  (table) => [primaryKey({ columns: [table.id] })],
+)
