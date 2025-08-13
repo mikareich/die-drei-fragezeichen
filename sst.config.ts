@@ -20,8 +20,20 @@ export default $config({
     const DATABASE_TOKEN = new sst.Secret('DATABASE_TOKEN')
     const DATABASE_URL = new sst.Secret('DATABASE_URL')
 
+    const transferCoverFn = new sst.aws.Function('TransferCoverFn', {
+      handler: 'functions/cover.transferCoverToBucket',
+      link: [bucket],
+      permissions: [
+        {
+          actions: ['s3:PutObject'],
+          resources: [bucket.arn.apply((arn) => `${arn}/*`)],
+        },
+      ],
+      timeout: '60 seconds',
+    })
+
     const service = new sst.aws.Service('DDF-Website', {
-      link: [bucket, DATABASE_URL, DATABASE_TOKEN],
+      link: [bucket, DATABASE_URL, DATABASE_TOKEN, transferCoverFn],
       cluster,
       loadBalancer: {
         ports: [{ listen: '80/http', forward: '3000/http' }],

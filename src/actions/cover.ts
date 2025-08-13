@@ -1,40 +1,36 @@
 'use server'
 
-import { PutObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { InvokeCommand } from '@aws-sdk/client-lambda'
 import { Resource } from 'sst'
-import { s3 } from '~/utils/s3'
+import type { z } from 'zod'
+import { lambda, parseLambdaResponse } from '~/utils/aws'
+import type { ResponseType } from '~/utils/types'
+import type { transferCoverToBucket_REQUEST_SCHEMA } from '../../functions/cover'
 
-/** Copies episode cover hosted on https://dreimetadaten.de/data/Serie/xxx/cover.png and moves it to the dedicated cover bucket */
-export async function transferCoverToBucket(episodeID: number) {
+export async function transferCoverToBucket(
+  episodeNumber: number,
+): Promise<ResponseType> {
   try {
-    if (Resource.App.stage === 'production') {
-      throw new Error('Can only transfer in development')
+    const payload = {
+      body: { episodeNumber } as z.infer<
+        typeof transferCoverToBucket_REQUEST_SCHEMA
+      >,
     }
 
-    const formattedID = String(episodeID).padStart(3, '0')
-
-    // fetch cover from dreimetadaten.de
-    const dreimetadatenResponse = await fetch(
-      `https://dreimetadaten.de/data/Serie/${formattedID}/cover.png`,
-    )
-    const cover = await dreimetadatenResponse.blob()
-    if (cover.type !== 'image/png') throw new Error('Cover not png')
-
-    // store cover in bucket
-    const command = new PutObjectCommand({
-      Key: `covers/${episodeID}.png`,
-      Bucket: Resource['DDF-Bucket'].name,
-      ContentType: cover.type,
+    const invokeCommand = new InvokeCommand({
+      FunctionName: Resource.TransferCoverFn.name,
+      InvocationType: 'RequestResponse',
+      Payload: Buffer.from(JSON.stringify(payload)),
     })
-    const url = await getSignedUrl(s3, command)
 
-    const s3Response = await fetch(url, { method: 'PUT', body: cover })
-    if (!s3Response.ok) throw new Error('Could not upload cover to s3')
+    const response = await lambda.send(invokeCommand)
 
-    return true
+    const result = parseLambdaResponse(response.Payload)
+    if (!result) throw new Error('Could not parse lambda response')
+
+    return result
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error(error)
-    return null
+    if (Resource.App.stage !== 'production') console.error(error)
+    return { success: false, message: 'Could not transfer cover to bucket.' }
   }
 }

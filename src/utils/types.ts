@@ -1,4 +1,7 @@
+import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda'
+import type { z } from 'zod'
 import type { episodes, people } from '~/db/schema'
+import type { RESPONSE_SCHEMA } from './constants'
 
 export type EpisodeView = typeof episodes.$inferSelect
 
@@ -48,4 +51,10 @@ export type Person = {
   booksAuthored: Map<number, Episode>
   scriptsAuthored: Map<number, Episode>
   contributed: number
+}
+
+export type ResponseType = z.infer<typeof RESPONSE_SCHEMA>
+
+export type LambdaResponse = Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
+  body: ResponseType
 }

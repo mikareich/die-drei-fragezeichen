@@ -29,6 +29,10 @@ declare module "sst" {
       "type": "sst.aws.Service"
       "url": string
     }
+    "TransferCoverFn": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
   }
 }
 /// <reference path="sst-env.d.ts" />

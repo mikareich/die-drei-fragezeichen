@@ -13,6 +13,9 @@ FROM base AS builder
 WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_CACHE_DIR=/tmp/next-cache
+
+RUN mkdir -p /tmp/next-cache
 
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
@@ -31,6 +34,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+
+RUN mkdir -p /tmp/next-cache && chown nextjs:nodejs /tmp/next-cache
+ENV NEXT_CACHE_DIR=/tmp/next-cache
 
 COPY --from=builder /app/public* ./public
 COPY --from=builder /app/.next/standalone ./

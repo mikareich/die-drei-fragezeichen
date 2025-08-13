@@ -59,13 +59,13 @@ export async function getEpisodesByQuery(
       .offset(offset)
       .then((data) => data.map(({ id }) => id))
 
-    const episodes = await db
+    const episodeData = await db
       .select()
       .from(episodes)
       .where(inArray(episodes.episodeId, episodeIDs))
       .then(parseEpisodes)
 
-    return { episodes, page: currentPage, totalPages }
+    return { episodes: episodeData, page: currentPage, totalPages }
   } catch (e) {
     console.error(e)
     return null

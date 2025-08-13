@@ -3,11 +3,11 @@ import React from 'react'
 import { getEpisodeByNumber } from '~/actions/episode'
 import Label from '~/components/Label'
 import { db } from '~/db/db'
+import { episodes } from '~/db/schema'
 import Cast from './_components/Cast'
 import Header from './_components/Header'
 import Script from './_components/Script'
 import Tracks from './_components/Tracks'
-import { episodes } from '~/db/schema'
 
 type EpisodePageProps = {
   params: Promise<{ number: string }>
