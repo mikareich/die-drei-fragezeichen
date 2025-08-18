@@ -1,6 +1,7 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryStreamedHydration } from '@tanstack/react-query-next-experimental'
 import { useMemo } from 'react'
 
 type ProviderProps = {
@@ -8,7 +9,21 @@ type ProviderProps = {
 }
 
 export default function Provider({ children }: ProviderProps) {
-  const client = useMemo(() => new QueryClient(), [])
+  const client = useMemo(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            experimental_prefetchInRender: true,
+          },
+        },
+      }),
+    [],
+  )
 
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  return (
+    <QueryClientProvider client={client}>
+      <ReactQueryStreamedHydration>{children}</ReactQueryStreamedHydration>
+    </QueryClientProvider>
+  )
 }

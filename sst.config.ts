@@ -32,8 +32,26 @@ export default $config({
       timeout: '60 seconds',
     })
 
+    const getUploadURLForAudio = new sst.aws.Function('GetUploadURLForAudio', {
+      handler: 'functions/audio.getUploadURLForAudio',
+      link: [bucket],
+      permissions: [
+        {
+          actions: ['s3:PutObject'],
+          resources: [bucket.arn.apply((arn) => `${arn}/*`)],
+        },
+      ],
+      timeout: '60 seconds',
+    })
+
     const service = new sst.aws.Service('DDF-Website', {
-      link: [bucket, DATABASE_URL, DATABASE_TOKEN, transferCoverFn],
+      link: [
+        bucket,
+        DATABASE_URL,
+        DATABASE_TOKEN,
+        transferCoverFn,
+        getUploadURLForAudio,
+      ],
       cluster,
       loadBalancer: {
         ports: [{ listen: '80/http', forward: '3000/http' }],

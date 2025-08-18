@@ -29,6 +29,10 @@ declare module "sst" {
       "type": "sst.aws.Service"
       "url": string
     }
+    "GetUploadURLForAudio": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "TransferCoverFn": {
       "name": string
       "type": "sst.aws.Function"
