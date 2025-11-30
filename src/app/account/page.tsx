@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import React from 'react'
-import EpisodeForm from './_components/EpisodeForm'
+import IngestionForm from './_components/IngestionForm'
 import { getDatasetVersions, getMissingEpisodes } from './actions'
+
+const EXAMPLE_SESSION_ID = '5e7b7377-f2d6-4ed2-af56-9e69f3e8641d'
 
 export default async function AccountPage() {
   const { localVersion, newestVersion } = await getDatasetVersions()
@@ -35,7 +36,10 @@ export default async function AccountPage() {
         </p>
       </section>
 
-      <EpisodeForm missingEpisodes={missingEpisodes} />
+      <IngestionForm
+        sessionId={EXAMPLE_SESSION_ID}
+        missingEpisodes={missingEpisodes}
+      />
     </main>
   )
 }

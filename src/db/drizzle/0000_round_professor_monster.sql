@@ -42,6 +42,21 @@ CREATE TABLE `episode_view` (
 	PRIMARY KEY(`episodeId`, `trackPosition`, `trackPart`, `castPersonId`, `bookAuthorId`, `scriptAuthorId`)
 );
 --> statement-breakpoint
+CREATE TABLE `ingestionParts` (
+	`id` text PRIMARY KEY NOT NULL,
+	`sessionId` text NOT NULL,
+	`status` text DEFAULT 'pending' NOT NULL,
+	`index` integer NOT NULL,
+	FOREIGN KEY (`sessionId`) REFERENCES `ingestionSessions`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `ingestionSessions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`episodeNumber` integer NOT NULL,
+	`episodeData` text NOT NULL,
+	`status` text DEFAULT 'created' NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `kids` (
 	`hörspielID` integer PRIMARY KEY NOT NULL,
 	`nummer` integer,
@@ -113,6 +128,15 @@ CREATE TABLE `pseudonym` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `pseudonym_name_unique` ON `pseudonym` (`name`);--> statement-breakpoint
+CREATE TABLE `rawAudios` (
+	`id` text PRIMARY KEY NOT NULL,
+	`partId` text NOT NULL,
+	`s3Key` text NOT NULL,
+	`uploadUrl` text NOT NULL,
+	`fileName` text,
+	FOREIGN KEY (`partId`) REFERENCES `ingestionParts`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `rolle` (
 	`name` text NOT NULL,
 	`rolleID` integer PRIMARY KEY NOT NULL
@@ -139,6 +163,16 @@ CREATE TABLE `kurzgeschichten` (
 	FOREIGN KEY (`hörspielID`) REFERENCES `hörspiel`(`hörspielID`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `sprechrolleTeil` (
+	`hörspielID` integer NOT NULL,
+	`position` integer NOT NULL,
+	`sprechrolleID` integer NOT NULL,
+	PRIMARY KEY(`sprechrolleID`, `hörspielID`),
+	FOREIGN KEY (`hörspielID`) REFERENCES `hörspiel`(`hörspielID`) ON UPDATE cascade ON DELETE cascade,
+	FOREIGN KEY (`sprechrolleID`) REFERENCES `sprechrolle`(`sprechrolleID`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `sprechrolleTeil_hörspielID_position_unique` ON `sprechrolleTeil` (`hörspielID`,`position`);--> statement-breakpoint
 CREATE TABLE `sprechrolle` (
 	`hörspielID` integer NOT NULL,
 	`position` integer NOT NULL,
@@ -150,16 +184,6 @@ CREATE TABLE `sprechrolle` (
 --> statement-breakpoint
 CREATE UNIQUE INDEX `sprechrolle_hörspielID_rolleID_unique` ON `sprechrolle` (`hörspielID`,`rolleID`);--> statement-breakpoint
 CREATE UNIQUE INDEX `sprechrolle_hörspielID_position_unique` ON `sprechrolle` (`hörspielID`,`position`);--> statement-breakpoint
-CREATE TABLE `sprechrolleTeil` (
-	`hörspielID` integer NOT NULL,
-	`position` integer NOT NULL,
-	`sprechrolleID` integer NOT NULL,
-	PRIMARY KEY(`sprechrolleID`, `hörspielID`),
-	FOREIGN KEY (`hörspielID`) REFERENCES `hörspiel`(`hörspielID`) ON UPDATE cascade ON DELETE cascade,
-	FOREIGN KEY (`sprechrolleID`) REFERENCES `sprechrolle`(`sprechrolleID`) ON UPDATE cascade ON DELETE cascade
-);
---> statement-breakpoint
-CREATE UNIQUE INDEX `sprechrolleTeil_hörspielID_position_unique` ON `sprechrolleTeil` (`hörspielID`,`position`);--> statement-breakpoint
 CREATE TABLE `spricht` (
 	`personID` integer NOT NULL,
 	`position` integer NOT NULL,

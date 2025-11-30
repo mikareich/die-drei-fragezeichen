@@ -4,12 +4,12 @@ import { InvokeCommand } from '@aws-sdk/client-lambda'
 import { Resource } from 'sst'
 import type { z } from 'zod'
 import { lambda, parseLambdaResponse } from '~/utils/aws'
-import type { ResponseType } from '~/utils/types'
+import type { GenericResponse } from '~/utils/types'
 import type { transferCoverToBucket_REQUEST_SCHEMA } from '../../functions/cover'
 
 export async function transferCoverToBucket(
   episodeNumber: number,
-): Promise<ResponseType> {
+): Promise<GenericResponse<undefined>> {
   try {
     const payload = {
       body: { episodeNumber } as z.infer<
@@ -28,7 +28,7 @@ export async function transferCoverToBucket(
     const result = parseLambdaResponse(response.Payload)
     if (!result) throw new Error('Could not parse lambda response')
 
-    return result
+    return { success: true, data: undefined }
   } catch (error) {
     if (Resource.App.stage !== 'production') console.error(error)
     return { success: false, message: 'Could not transfer cover to bucket.' }

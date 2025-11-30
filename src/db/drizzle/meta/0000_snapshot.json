@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "2ae66347-a850-406c-ab09-a32cf38766cd",
+  "id": "ce4e1ec0-7aa0-4be2-ba6c-33793ef7cc4b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "hörspielBuchautor": {
@@ -304,6 +304,98 @@
           "name": "episode_view_episodeId_trackPosition_trackPart_castPersonId_bookAuthorId_scriptAuthorId_pk"
         }
       },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "ingestionParts": {
+      "name": "ingestionParts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sessionId": {
+          "name": "sessionId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'pending'"
+        },
+        "index": {
+          "name": "index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ingestionParts_sessionId_ingestionSessions_id_fk": {
+          "name": "ingestionParts_sessionId_ingestionSessions_id_fk",
+          "tableFrom": "ingestionParts",
+          "tableTo": "ingestionSessions",
+          "columnsFrom": [
+            "sessionId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "ingestionSessions": {
+      "name": "ingestionSessions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "episodeNumber": {
+          "name": "episodeNumber",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "episodeData": {
+          "name": "episodeData",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'created'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -756,6 +848,65 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "rawAudios": {
+      "name": "rawAudios",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "partId": {
+          "name": "partId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "s3Key": {
+          "name": "s3Key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "uploadUrl": {
+          "name": "uploadUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fileName": {
+          "name": "fileName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "rawAudios_partId_ingestionParts_id_fk": {
+          "name": "rawAudios_partId_ingestionParts_id_fk",
+          "tableFrom": "rawAudios",
+          "tableTo": "ingestionParts",
+          "columnsFrom": [
+            "partId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "rolle": {
       "name": "rolle",
       "columns": {
@@ -924,6 +1075,81 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "sprechrolleTeil": {
+      "name": "sprechrolleTeil",
+      "columns": {
+        "hörspielID": {
+          "name": "hörspielID",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sprechrolleID": {
+          "name": "sprechrolleID",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "sprechrolleTeil_hörspielID_position_unique": {
+          "name": "sprechrolleTeil_hörspielID_position_unique",
+          "columns": [
+            "hörspielID",
+            "position"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "sprechrolleTeil_hörspielID_hörspiel_hörspielID_fk": {
+          "name": "sprechrolleTeil_hörspielID_hörspiel_hörspielID_fk",
+          "tableFrom": "sprechrolleTeil",
+          "tableTo": "hörspiel",
+          "columnsFrom": [
+            "hörspielID"
+          ],
+          "columnsTo": [
+            "hörspielID"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "sprechrolleTeil_sprechrolleID_sprechrolle_sprechrolleID_fk": {
+          "name": "sprechrolleTeil_sprechrolleID_sprechrolle_sprechrolleID_fk",
+          "tableFrom": "sprechrolleTeil",
+          "tableTo": "sprechrolle",
+          "columnsFrom": [
+            "sprechrolleID"
+          ],
+          "columnsTo": [
+            "sprechrolleID"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "sprechrolleTeil_sprechrolleID_hörspielID_pk": {
+          "columns": [
+            "sprechrolleID",
+            "hörspielID"
+          ],
+          "name": "sprechrolleTeil_sprechrolleID_hörspielID_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "sprechrolle": {
       "name": "sprechrolle",
       "columns": {
@@ -1003,81 +1229,6 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "sprechrolleTeil": {
-      "name": "sprechrolleTeil",
-      "columns": {
-        "hörspielID": {
-          "name": "hörspielID",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "position": {
-          "name": "position",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "sprechrolleID": {
-          "name": "sprechrolleID",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "sprechrolleTeil_hörspielID_position_unique": {
-          "name": "sprechrolleTeil_hörspielID_position_unique",
-          "columns": [
-            "hörspielID",
-            "position"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "sprechrolleTeil_hörspielID_hörspiel_hörspielID_fk": {
-          "name": "sprechrolleTeil_hörspielID_hörspiel_hörspielID_fk",
-          "tableFrom": "sprechrolleTeil",
-          "tableTo": "hörspiel",
-          "columnsFrom": [
-            "hörspielID"
-          ],
-          "columnsTo": [
-            "hörspielID"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "sprechrolleTeil_sprechrolleID_sprechrolle_sprechrolleID_fk": {
-          "name": "sprechrolleTeil_sprechrolleID_sprechrolle_sprechrolleID_fk",
-          "tableFrom": "sprechrolleTeil",
-          "tableTo": "sprechrolle",
-          "columnsFrom": [
-            "sprechrolleID"
-          ],
-          "columnsTo": [
-            "sprechrolleID"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {
-        "sprechrolleTeil_sprechrolleID_hörspielID_pk": {
-          "columns": [
-            "sprechrolleID",
-            "hörspielID"
-          ],
-          "name": "sprechrolleTeil_sprechrolleID_hörspielID_pk"
-        }
-      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },

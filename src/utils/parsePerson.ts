@@ -1,9 +1,15 @@
-import type { Episode, EpisodeView, PeopleView, Person } from '~/utils/types'
+import type {
+  Episode,
+  EpisodeView,
+  Nullable,
+  PeopleView,
+  Person,
+} from '~/utils/types'
 import { parseEpisodes } from './parseEpisode'
 
 type JoinedPersonResult = {
   people_view: PeopleView
-  episode_view: EpisodeView | null
+  episode_view: Nullable<EpisodeView> | null
 }
 
 export function parsePeople(rawPeople: JoinedPersonResult[]): Person[] {
@@ -42,7 +48,7 @@ function parseSinglePerson(result: JoinedPersonResult[]): Person | null {
       (episode): episode is NonNullable<typeof episode> => episode !== null,
     )
 
-  const episodes = parseEpisodes(episodeData)
+  const episodes = parseEpisodes(episodeData as unknown as EpisodeView[])
 
   const roles = new Set<string>(
     personView.roles ? personView.roles.split(',').filter(Boolean) : [],

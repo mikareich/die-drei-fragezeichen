@@ -1,7 +1,14 @@
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda'
+import { DBQueryConfig, type InferSelectModel } from 'drizzle-orm'
 import type { z } from 'zod'
-import type { episodes, people } from '~/db/schema'
-import type { RESPONSE_SCHEMA } from './constants'
+import type {
+  episodes,
+  ingestionParts,
+  ingestionSessions,
+  people,
+  rawAudios,
+} from '~/db/schema'
+import type { GENERIC_RESPONSE_SCHEMA } from './constants'
 
 export type EpisodeView = typeof episodes.$inferSelect
 
@@ -53,8 +60,23 @@ export type Person = {
   contributed: number
 }
 
-export type ResponseType = z.infer<typeof RESPONSE_SCHEMA>
+export type RawFile = typeof rawAudios.$inferSelect
 
-export type LambdaResponse = Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
-  body: ResponseType
+export type IngestionPart = typeof ingestionParts.$inferSelect
+
+export type IngestionSession = typeof ingestionSessions.$inferSelect & {
+  parts: (IngestionPart & { file?: RawFile })[]
 }
+
+export type Nullable<Type extends Record<string, unknown>> = {
+  [K in keyof Type]: Type[K] | null
+}
+
+export type GenericResponse<Data extends Record<string, unknown> | undefined> =
+  | { success: true; data: Data }
+  | { success: false; message?: string }
+
+export type LambdaResponse<Data extends Record<string, unknown> | undefined> =
+  Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
+    body: GenericResponse<Data>
+  }

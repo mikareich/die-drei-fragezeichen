@@ -1,13 +1,15 @@
-'use client'
-
 import { ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons'
 import * as RSelect from '@radix-ui/react-select'
 import type React from 'react'
 import Button from './Button'
 
 type SelectProps = RSelect.SelectProps & {
-  triggerProps?: Omit<Parameters<typeof Button>[0], 'children' | 'suffixIcon'>
+  triggerProps?: Omit<
+    Parameters<typeof Button>[0],
+    'children' | 'suffixIcon' | 'loading'
+  >
   options: Map<string, React.ReactNode>
+  loading?: boolean
 }
 
 export default function Select({
@@ -15,12 +17,18 @@ export default function Select({
   triggerProps,
   options,
   value,
+  loading = false,
+  disabled = false,
   ...props
 }: SelectProps) {
+  const renderDisabled = loading || disabled
+
   return (
-    <RSelect.Root value={value} {...props}>
+    <RSelect.Root disabled={renderDisabled} value={value} {...props}>
       <RSelect.Trigger asChild>
         <Button
+          loading={loading}
+          disabled={disabled}
           suffixIcon={<ChevronDownIcon className="size-6" />}
           {...triggerProps}
         >

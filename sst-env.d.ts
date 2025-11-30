@@ -5,6 +5,11 @@
 
 declare module "sst" {
   export interface Resource {
+    "CreateIngestionSession": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
     "DATABASE_TOKEN": {
       "type": "sst.sst.Secret"
       "value": string
@@ -29,7 +34,20 @@ declare module "sst" {
       "type": "sst.aws.Service"
       "url": string
     }
-    "GetUploadURLForAudio": {
+    "GenerateUploadUrl": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
+    "IngestionFlow": {
+      "arn": string
+      "type": "sst.aws.StepFunctions"
+    }
+    "PrepareAudio": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "RemoveIngestionSession": {
       "name": string
       "type": "sst.aws.Function"
     }

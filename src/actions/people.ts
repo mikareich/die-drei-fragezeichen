@@ -3,6 +3,7 @@
 import { asc, countDistinct, eq, inArray, or, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
 import { episodes, people } from '~/db/schema'
+import { peopleSubquery } from '~/db/subqueries'
 import { ITEM_LIMIT } from '~/utils/constants'
 import { parsePeople, parsePerson } from '~/utils/parsePerson'
 import type { Person } from '~/utils/types'
@@ -22,17 +23,10 @@ export async function getPerson(id: number): Promise<Person | null> {
   'use cache'
 
   return db
+    .with(peopleSubquery)
     .select()
-    .from(people)
-    .leftJoin(
-      episodes,
-      or(
-        eq(episodes.castPersonId, people.id),
-        eq(episodes.bookAuthorId, people.id),
-        eq(episodes.scriptAuthorId, people.id),
-      ),
-    )
-    .where(eq(people.id, id))
+    .from(peopleSubquery)
+    .where(eq(peopleSubquery.people_view.id, id))
     .then(parsePerson)
 }
 

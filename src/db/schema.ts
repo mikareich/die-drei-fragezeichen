@@ -5,6 +5,7 @@ import {
   text,
   unique,
 } from 'drizzle-orm/sqlite-core'
+import { v4 as uuid } from 'uuid'
 
 export const metadata = sqliteTable('hörspiel', {
   cover: integer('cover').notNull(),
@@ -28,7 +29,7 @@ export const metadata = sqliteTable('hörspiel', {
   urlDreifragezeichen: text('urlDreifragezeichen'),
 })
 
-export const part = sqliteTable(
+export const parts = sqliteTable(
   'hörspielTeil',
   {
     episodeID: integer('hörspiel')
@@ -64,7 +65,7 @@ export const series = sqliteTable('serie', {
   number: integer('nummer').primaryKey().notNull(),
 })
 
-export const special = sqliteTable('spezial', {
+export const specials = sqliteTable('spezial', {
   episodeID: integer('hörspielID')
     .primaryKey()
     .notNull()
@@ -85,7 +86,7 @@ export const shortStories = sqliteTable('kurzgeschichten', {
     }),
 })
 
-export const dieDr3i = sqliteTable('dieDr3i', {
+export const dieDr3is = sqliteTable('dieDr3i', {
   episodeID: integer('hörspielID')
     .primaryKey()
     .notNull()
@@ -107,7 +108,7 @@ export const kids = sqliteTable('kids', {
   number: integer('nummer'),
 })
 
-export const other = sqliteTable('sonstige', {
+export const others = sqliteTable('sonstige', {
   episodeID: integer('hörspielID')
     .primaryKey()
     .notNull()
@@ -117,24 +118,24 @@ export const other = sqliteTable('sonstige', {
     }),
 })
 
-export const person = sqliteTable('person', {
+export const persons = sqliteTable('person', {
   name: text('name').notNull().unique(),
   personID: integer('personID').primaryKey({ autoIncrement: true }).notNull(),
 })
 
-export const pseudonym = sqliteTable('pseudonym', {
+export const pseudonyms = sqliteTable('pseudonym', {
   name: text('name').notNull().unique(),
   pseudonymID: integer('pseudonymID')
     .primaryKey({ autoIncrement: true })
     .notNull(),
 })
 
-export const role = sqliteTable('rolle', {
+export const roles = sqliteTable('rolle', {
   name: text('name').notNull().unique(),
   roleID: integer('rolleID').primaryKey().notNull(),
 })
 
-export const speakerRole = sqliteTable(
+export const speakerRoles = sqliteTable(
   'sprechrolle',
   {
     episodeID: integer('hörspielID')
@@ -146,7 +147,7 @@ export const speakerRole = sqliteTable(
     position: integer('position').notNull(),
     roleID: integer('rolleID')
       .notNull()
-      .references(() => role.roleID, {
+      .references(() => roles.roleID, {
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
@@ -158,7 +159,7 @@ export const speakerRole = sqliteTable(
   }),
 )
 
-export const speakerRolePart = sqliteTable(
+export const speakerRoleParts = sqliteTable(
   'sprechrolleTeil',
   {
     episodeID: integer('hörspielID')
@@ -170,7 +171,7 @@ export const speakerRolePart = sqliteTable(
     position: integer('position').notNull(),
     speakerRoleID: integer('sprechrolleID')
       .notNull()
-      .references(() => speakerRole.speakerRoleID, {
+      .references(() => speakerRoles.speakerRoleID, {
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
@@ -186,13 +187,13 @@ export const speaks = sqliteTable(
   {
     personID: integer('personID')
       .notNull()
-      .references(() => person.personID, {
+      .references(() => persons.personID, {
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
     position: integer('position').notNull(),
     pseudonymID: integer('pseudonymID').references(
-      () => pseudonym.pseudonymID,
+      () => pseudonyms.pseudonymID,
       {
         onDelete: 'set null',
         onUpdate: 'cascade',
@@ -200,7 +201,7 @@ export const speaks = sqliteTable(
     ),
     speakerRoleID: integer('sprechrolleID')
       .notNull()
-      .references(() => speakerRole.speakerRoleID, {
+      .references(() => speakerRoles.speakerRoleID, {
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
@@ -211,7 +212,7 @@ export const speaks = sqliteTable(
   }),
 )
 
-export const bookAuthor = sqliteTable(
+export const bookAuthors = sqliteTable(
   'hörspielBuchautor',
   {
     episodeID: integer('hörspielID')
@@ -222,7 +223,7 @@ export const bookAuthor = sqliteTable(
       }),
     personID: integer('personID')
       .notNull()
-      .references(() => person.personID, {
+      .references(() => persons.personID, {
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
@@ -232,7 +233,7 @@ export const bookAuthor = sqliteTable(
   }),
 )
 
-export const scriptAuthor = sqliteTable(
+export const scriptAuthors = sqliteTable(
   'hörspielSkriptautor',
   {
     episodeID: integer('hörspielID')
@@ -243,7 +244,7 @@ export const scriptAuthor = sqliteTable(
       }),
     personID: integer('personID')
       .notNull()
-      .references(() => person.personID, {
+      .references(() => persons.personID, {
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
@@ -253,7 +254,7 @@ export const scriptAuthor = sqliteTable(
   }),
 )
 
-export const medium = sqliteTable('medium', {
+export const mediums = sqliteTable('medium', {
   episodeID: integer('hörspielID')
     .notNull()
     .references(() => metadata.episodeID, {
@@ -266,13 +267,13 @@ export const medium = sqliteTable('medium', {
   ripLog: integer('ripLog', { mode: 'boolean' }).notNull(),
 })
 
-export const track = sqliteTable(
+export const tracks = sqliteTable(
   'track',
   {
     duration: integer('dauer').notNull(),
     mediumID: integer('mediumID')
       .notNull()
-      .references(() => medium.mediumID, {
+      .references(() => mediums.mediumID, {
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
@@ -285,7 +286,7 @@ export const track = sqliteTable(
   }),
 )
 
-export const chapter = sqliteTable('kapitel', {
+export const chapters = sqliteTable('kapitel', {
   alternativeTitle: text('abweichenderTitel'),
   episodeID: integer('hörspielID')
     .notNull()
@@ -297,13 +298,13 @@ export const chapter = sqliteTable('kapitel', {
   trackID: integer('trackID')
     .primaryKey()
     .notNull()
-    .references(() => track.trackID, {
+    .references(() => tracks.trackID, {
       onDelete: 'cascade',
       onUpdate: 'cascade',
     }),
 })
 
-export const version = sqliteTable('version', {
+export const versions = sqliteTable('version', {
   date: text('date').notNull().default('CURRENT_TIMESTAMP'),
   major: integer('major').notNull(),
   minor: integer('minor').notNull(),
@@ -360,3 +361,45 @@ export const people = sqliteTable(
   },
   (table) => [primaryKey({ columns: [table.id] })],
 )
+
+export const ingestionSessions = sqliteTable('ingestionSessions', {
+  id: text().primaryKey(),
+  episodeNumber: integer().notNull(),
+  episodeData: text().notNull(),
+  status: text('status', {
+    enum: ['created', 'completed', 'failed'],
+  })
+    .default('created')
+    .notNull(),
+})
+
+export const ingestionParts = sqliteTable('ingestionParts', {
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  sessionId: text()
+    .references(() => ingestionSessions.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    })
+    .notNull(),
+  status: text('status', {
+    enum: ['pending', 'uploading', 'deleting', 'processing', 'ready', 'failed'],
+  })
+    .default('pending')
+    .notNull(),
+  index: integer().notNull(),
+})
+
+export const rawAudios = sqliteTable('rawAudios', {
+  id: text().primaryKey(),
+  partId: text()
+    .references(() => ingestionParts.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    })
+    .notNull(),
+  s3Key: text().notNull(),
+  uploadUrl: text().notNull(),
+  fileName: text(),
+})

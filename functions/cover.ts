@@ -11,7 +11,7 @@ export const transferCoverToBucket_REQUEST_SCHEMA = z.object({
 
 export async function transferCoverToBucket(
   event: APIGatewayProxyEventV2,
-): Promise<LambdaResponse> {
+): Promise<LambdaResponse<undefined>> {
   try {
     const { episodeNumber } = transferCoverToBucket_REQUEST_SCHEMA.parse(
       event.body,
@@ -48,7 +48,7 @@ export async function transferCoverToBucket(
       statusCode: 200,
       body: {
         success: true,
-        message: 'Cover transferred successfully',
+        data: undefined,
       },
     }
   } catch (error) {
@@ -56,10 +56,7 @@ export async function transferCoverToBucket(
 
     return {
       statusCode: 500,
-      body: {
-        success: false,
-        message: 'Error transfering cover.',
-      },
+      body: { success: false },
     }
   }
 }

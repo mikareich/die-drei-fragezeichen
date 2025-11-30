@@ -32,16 +32,78 @@ export default $config({
       timeout: '60 seconds',
     })
 
-    const getUploadURLForAudio = new sst.aws.Function('GetUploadURLForAudio', {
-      handler: 'functions/audio.getUploadURLForAudio',
-      link: [bucket],
+    const generateUploadUrl = new sst.aws.Function('GenerateUploadUrl', {
+      handler: 'functions/audio.generateUploadUrl',
+      link: [bucket, DATABASE_URL, DATABASE_TOKEN],
       permissions: [
         {
           actions: ['s3:PutObject'],
           resources: [bucket.arn.apply((arn) => `${arn}/*`)],
         },
       ],
+      url: true,
       timeout: '60 seconds',
+    })
+
+    const createIngestionSession = new sst.aws.Function(
+      'CreateIngestionSession',
+      {
+        handler: 'functions/orchestrator.createIngestionSession',
+        url: true,
+        link: [DATABASE_URL, DATABASE_TOKEN],
+      },
+    )
+
+    const removeIngestionSession = new sst.aws.Function(
+      'RemoveIngestionSession',
+      {
+        handler: 'functions/orchestrator.removeIngestionSession',
+        link: [DATABASE_URL, DATABASE_TOKEN, bucket],
+        permissions: [
+          {
+            actions: ['s3:removeObject'],
+            resources: [bucket.arn.apply((arn) => `${arn}/*`)],
+          },
+        ],
+      },
+    )
+
+    const prepareAudio = new sst.aws.Function('PrepareAudio', {
+      handler: 'functions/audio.prepareAudio',
+      link: [DATABASE_URL, DATABASE_TOKEN, bucket],
+      memory: '2 GB',
+      timeout: '15 minutes',
+      storage: '1 GB',
+      nodejs: {
+        install: ['ffmpeg-static'],
+      },
+    })
+
+    const ingestionFlow = new sst.aws.StepFunctions('IngestionFlow', {
+      definition: sst.aws.StepFunctions.lambdaInvoke({
+        name: 'PrepareAudio',
+        function: prepareAudio,
+        payload: { env: '{% $states.input %}' },
+      }),
+      logging: {
+        level: 'all',
+        includeData: true,
+        retention: '1 month',
+      },
+    })
+
+    bucket.notify({
+      notifications: [
+        {
+          name: 'RawAudioSubscription',
+          filterPrefix: 'raw-audio/',
+          function: {
+            handler: 'functions/orchestrator.triggerIngestionPipeline',
+            link: [DATABASE_URL, DATABASE_TOKEN, bucket, ingestionFlow],
+          },
+          events: ['s3:ObjectCreated:*'],
+        },
+      ],
     })
 
     const service = new sst.aws.Service('DDF-Website', {
@@ -50,7 +112,9 @@ export default $config({
         DATABASE_URL,
         DATABASE_TOKEN,
         transferCoverFn,
-        getUploadURLForAudio,
+        generateUploadUrl,
+        createIngestionSession,
+        removeIngestionSession,
       ],
       cluster,
       loadBalancer: {
@@ -61,7 +125,7 @@ export default $config({
       },
       permissions: [
         {
-          actions: ['s3:putObject'],
+          actions: ['s3:putObject', 's3:removeObject'],
           resources: [bucket.arn.apply((arn) => `${arn}/*`)],
         },
       ],

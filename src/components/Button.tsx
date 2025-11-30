@@ -85,7 +85,7 @@ export default function Button({
     >
       {effectivePrefixIcon && <span>{effectivePrefixIcon}</span>}
 
-      <span className="truncate">{children}</span>
+      {children && <span className="truncate">{children}</span>}
 
       {suffixIcon && <span>{suffixIcon}</span>}
     </button>

@@ -9,17 +9,7 @@ type ProviderProps = {
 }
 
 export default function Provider({ children }: ProviderProps) {
-  const client = useMemo(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            experimental_prefetchInRender: true,
-          },
-        },
-      }),
-    [],
-  )
+  const client = useMemo(() => new QueryClient(), [])
 
   return (
     <QueryClientProvider client={client}>
