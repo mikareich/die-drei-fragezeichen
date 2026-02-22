@@ -319,20 +319,16 @@ export const episodes = sqliteTable(
     number: integer(),
     releaseDate: text(),
     title: text().notNull(),
-
     trackDuration: integer(),
     trackPosition: integer(),
     trackTitle: text(),
     trackPart: integer(),
-
     castPersonId: integer(),
     castName: text(),
     castPseudonym: text(),
     castRole: text(),
-
     bookAuthorId: integer(),
     bookAuthorName: text(),
-
     scriptAuthorId: integer(),
     scriptAuthorName: text(),
   },
@@ -362,10 +358,19 @@ export const people = sqliteTable(
   (table) => [primaryKey({ columns: [table.id] })],
 )
 
+export const assets = sqliteTable('assets', {
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  episodeNumber: integer()
+    .references(() => episodes.number)
+    .notNull(),
+  coverUrl: text().notNull(),
+})
+
 export const ingestionSessions = sqliteTable('ingestionSessions', {
   id: text().primaryKey(),
-  episodeNumber: integer().notNull(),
-  episodeData: text().notNull(),
+  assetId: text().primaryKey(),
   status: text('status', {
     enum: ['created', 'completed', 'failed'],
   })
@@ -389,17 +394,13 @@ export const ingestionParts = sqliteTable('ingestionParts', {
     .default('pending')
     .notNull(),
   index: integer().notNull(),
+  rawAudioFileS3Key: text(),
 })
 
-export const rawAudios = sqliteTable('rawAudios', {
-  id: text().primaryKey(),
-  partId: text()
-    .references(() => ingestionParts.id, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    })
-    .notNull(),
-  s3Key: text().notNull(),
-  uploadUrl: text().notNull(),
-  fileName: text(),
+export const processedAudioFiles = sqliteTable('processedAudioFiles', {
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  partId: text().references(() => ingestionParts.id),
+  url: text().notNull(),
 })

@@ -6,7 +6,7 @@ import type {
   ingestionParts,
   ingestionSessions,
   people,
-  rawAudios,
+  processedAudioFiles,
 } from '~/db/schema'
 import type { GENERIC_RESPONSE_SCHEMA } from './constants'
 
@@ -60,12 +60,12 @@ export type Person = {
   contributed: number
 }
 
-export type RawFile = typeof rawAudios.$inferSelect
-
-export type IngestionPart = typeof ingestionParts.$inferSelect
+export type IngestionPart = typeof ingestionParts.$inferSelect & {
+  processedAudioFiles: (typeof processedAudioFiles.$inferSelect)[]
+}
 
 export type IngestionSession = typeof ingestionSessions.$inferSelect & {
-  parts: (IngestionPart & { file?: RawFile })[]
+  parts: IngestionPart[]
 }
 
 export type Nullable<Type extends Record<string, unknown>> = {

@@ -51,3 +51,52 @@ This workflow is designed to be executed on the official UI as well as for exter
   - 
 
 4. **
+
+
+## ER Diagram
+
+```mermaid
+---
+title: DDF Assets
+---
+erDiagram
+---
+title: DDF Assets
+---
+
+erDiagram
+    direction TB
+
+    Asset {
+        integer episode_number PK
+        string cover_url
+        uuid active_ingestion_id FK "Points to the currently live session"
+    }
+
+    IngestionSession {
+        uuid id PK
+        uuid userId FK
+        integer episode_number FK
+        string user_id
+        datetime created_at
+        string status "UPLOADING, PROCESSING, COMPLETED, FAILED"
+        boolean is_archived "False if incomplete/failed, True if completed"
+    }
+
+    IngestionPart {
+        uuid id PK
+        uuid session_id FK
+        integer part_index
+    }
+
+    EpisodeSegment {
+        uuid id PK
+        uuid part_id FK "Links back to origin session"
+        string audio_s3_key "The normalized audio chunk"
+        string transcript_s3_key "The text chunk"
+    }
+
+    Asset ||--o| IngestionSession : "active_ingestion_id"
+    IngestionSession ||--|{ IngestionPart : "input"
+    IngestionPart ||--|{ EpisodeSegment : "output""
+```

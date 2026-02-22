@@ -1,10 +1,14 @@
-import type { ingestionParts, ingestionSessions, rawAudios } from '~/db/schema'
+import type {
+  ingestionParts,
+  ingestionSessions,
+  processedAudioFiles,
+} from '~/db/schema'
 import type { IngestionSession, Nullable } from './types'
 
 type RawIngestionSession = {
   ingestionSessions: typeof ingestionSessions.$inferSelect
   ingestionParts: Nullable<typeof ingestionParts.$inferSelect> | null
-  rawAudios: Nullable<typeof rawAudios.$inferSelect> | null
+  processedAudioFiles: Nullable<typeof processedAudioFiles.$inferSelect> | null
 }
 
 export function parseIngestionSessions(
@@ -38,7 +42,7 @@ function parseIngestionSession(
   const parts: IngestionSession['parts'] = []
 
   for (const column of rawIngestionSession) {
-    const file = column.rawAudios
+    const audioFile = column.processedAudioFiles
     const part = column.ingestionParts
 
     if (part) {
@@ -48,11 +52,18 @@ function parseIngestionSession(
         // First time seeing this part, add it
         parts.push({
           ...(part as typeof ingestionParts.$inferSelect),
-          ...(file ? { file: file as typeof rawAudios.$inferSelect } : {}),
+          processedAudioFiles: audioFile
+            ? [audioFile as typeof processedAudioFiles.$inferSelect]
+            : [],
         })
-      } else if (file && !parts[idx].file) {
-        // Part exists but has no file yet, add the file
-        parts[idx].file = file as typeof rawAudios.$inferSelect
+      } else if (audioFile) {
+        // Part exists, add the audio file to the array
+        if (!parts[idx].processedAudioFiles) {
+          parts[idx].processedAudioFiles = []
+        }
+        parts[idx].processedAudioFiles.push(
+          audioFile as typeof processedAudioFiles.$inferSelect,
+        )
       }
     }
   }

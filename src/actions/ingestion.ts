@@ -10,8 +10,11 @@ import type { z } from 'zod'
 import type { UploadUrlResponse } from '~/../functions/audio'
 import type { removeIngestionSession_REQUEST_SCHEMA } from '~/../functions/orchestrator'
 import { db } from '~/db/db'
-import { ingestionParts, ingestionSessions, rawAudios } from '~/db/schema'
-import { ingestionSubquery } from '~/db/subqueries'
+import {
+  ingestionParts,
+  ingestionSessions,
+  processedAudioFiles,
+} from '~/db/schema'
 import { lambda, parseLambdaResponse, s3 } from '~/utils/aws'
 import { parseIngestionSessions } from '~/utils/parseIngestion'
 import type { GenericResponse, IngestionSession } from '~/utils/types'
@@ -39,20 +42,21 @@ export async function removeIngestionPart({
     const part = await transaction
       .select()
       .from(ingestionParts)
-      .innerJoin(rawAudios, eq(rawAudios.partId, partId))
+      .innerJoin(processedAudioFiles, eq(processedAudioFiles.partId, partId))
       .then((data) => {
-        if (!data[0]?.ingestionParts || !data[0]?.rawAudios) return null
+        if (!data[0]?.ingestionParts || !data[0]?.processedAudioFiles)
+          return null
 
         return {
           ...data[0].ingestionParts,
-          file: data[0].rawAudios,
+          file: data[0].processedAudioFiles,
         }
       })
 
     if (!part) throw new Error('Could not find requested part.')
 
     // delete requested part and move up all following parts
-    // entry in `rawAudios` gets deleted automatically due to sql's cascading behaviour
+    // entry in `processedAudioFiles` gets deleted automatically due to sql's cascading behaviour
     await transaction
       .delete(ingestionParts)
       .where(eq(ingestionParts.id, partId))
@@ -72,12 +76,14 @@ export async function removeIngestionPart({
     // delete raw audio file from s3
     // TODO: remove associated processed files, transcripts and vectors
 
-    const deleteObjectCommand = new DeleteObjectCommand({
-      Bucket: Resource['DDF-Bucket'].name,
-      Key: part.file.s3Key,
-    })
+    if (part.rawAudioFileS3Key) {
+      const deleteObjectCommand = new DeleteObjectCommand({
+        Bucket: Resource['DDF-Bucket'].name,
+        Key: part.rawAudioFileS3Key,
+      })
 
-    await s3.send(deleteObjectCommand)
+      await s3.send(deleteObjectCommand)
+    }
 
     return {
       success: true,
@@ -112,9 +118,10 @@ export async function addNextPart({ sessionId }: { sessionId: string }) {
     const response = await lambda.send(invokeCommand)
 
     const result = parseLambdaResponse<UploadUrlResponse>(response.Payload)
-    if (!result) throw new Error('Could not parse lambda response')
+    if (!result || !result.success)
+      throw new Error('Could not parse lambda response')
 
-    return { success: true, data: undefined }
+    return { success: true, data: result.data }
   } catch (error) {
     if (Resource.App.stage !== 'production') console.error(error)
     return { success: false, message: 'Could generate upload url.' }
@@ -126,7 +133,6 @@ export async function getIngestionSession({
 }: {
   sessionId: string
 }): Promise<GenericResponse<IngestionSession>> {
-  console.log('fetching session', sessionId)
   try {
     const [session] = await db
       .select()
@@ -135,7 +141,10 @@ export async function getIngestionSession({
         ingestionParts,
         eq(ingestionParts.sessionId, ingestionSessions.id),
       )
-      .leftJoin(rawAudios, eq(rawAudios.partId, ingestionParts.id))
+      .leftJoin(
+        processedAudioFiles,
+        eq(processedAudioFiles.partId, ingestionParts.id),
+      )
       .where(eq(ingestionSessions.id, sessionId))
       .then(parseIngestionSessions)
 
@@ -157,19 +166,6 @@ export async function linkIngestionSession({
   sessionId: string
 }): Promise<GenericResponse<IngestionSession>> {
   try {
-    const payload = { body: { episodeNumber, sessionId } }
-
-    const invokeCommand = new InvokeCommand({
-      FunctionName: Resource.CreateIngestionSession.name,
-      InvocationType: 'RequestResponse',
-      Payload: Buffer.from(JSON.stringify(payload)),
-    })
-
-    const response = await lambda.send(invokeCommand)
-
-    const result = parseLambdaResponse(response.Payload)
-    if (!result) throw new Error('Could not parse lambda response')
-
     // check if session already exists
     const sessionExists = await db
       .select()
@@ -241,16 +237,13 @@ export async function markFileAsUpdating({
   try {
     await db.transaction(async (tx) => {
       const partId = await tx
-        .select({ id: rawAudios.partId })
-        .from(rawAudios)
-        .where(eq(rawAudios.id, fileId))
+        .select({ id: processedAudioFiles.partId })
+        .from(processedAudioFiles)
+        .where(eq(processedAudioFiles.id, fileId))
         .then((data) => data.at(0)?.id || null)
+
       if (!partId) throw new Error('Could not find associated part')
 
-      await tx
-        .update(rawAudios)
-        .set({ fileName })
-        .where(eq(rawAudios.id, fileId))
       await tx
         .update(ingestionParts)
         .set({ status: 'uploading' })

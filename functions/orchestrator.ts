@@ -6,7 +6,11 @@ import { z } from 'zod'
 import { getEpisodeByNumber } from '~/actions/episode'
 import { removeIngestionPart } from '~/actions/ingestion'
 import { db } from '~/db/db'
-import { ingestionParts, ingestionSessions, rawAudios } from '~/db/schema'
+import {
+  ingestionParts,
+  ingestionSessions,
+  processedAudioFiles,
+} from '~/db/schema'
 import { sfn } from '~/utils/aws'
 import type { LambdaResponse } from '~/utils/types'
 import type { prepareAudio_REQUEST_SCHEMA } from './audio'
@@ -73,8 +77,8 @@ export async function triggerIngestionPipeline(event: S3Event) {
     const fileId = match[2]
     const partId = await db
       .select()
-      .from(rawAudios)
-      .where(eq(rawAudios.id, fileId))
+      .from(processedAudioFiles)
+      .where(eq(processedAudioFiles.id, fileId))
       .then((data) => data.at(0)?.partId || null)
 
     if (!partId) {

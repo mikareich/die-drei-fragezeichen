@@ -1,17 +1,29 @@
+import { tmpdir } from 'node:os'
+import path from 'node:path/win32'
 import { ClientInputEndpointParameters } from '@aws-sdk/client-lambda'
-import { PutObjectCommand } from '@aws-sdk/client-s3'
+import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import type { APIGatewayProxyEventV2 } from 'aws-lambda'
 import { and, eq } from 'drizzle-orm'
+import ffmpeg from 'ffmpeg-static'
 import { Resource } from 'sst'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 import { db } from '~/db/db'
-import { ingestionParts, ingestionSessions, rawAudios } from '~/db/schema'
+import {
+  ingestionParts,
+  ingestionSessions,
+  processedAudioFiles,
+} from '~/db/schema'
 import { ingestionSubquery } from '~/db/subqueries'
 import { s3 } from '~/utils/aws'
 import { parseIngestionSessions } from '~/utils/parseIngestion'
-import type { IngestionPart, LambdaResponse, RawFile } from '~/utils/types'
+import type {
+  IngestionPart,
+  IngestionSession,
+  LambdaResponse,
+  RawFile,
+} from '~/utils/types'
 
 export const UPLOAD_URL_REQUEST_BODY = z.object({
   sessionId: z.string().uuid(),
@@ -19,7 +31,7 @@ export const UPLOAD_URL_REQUEST_BODY = z.object({
 })
 
 export type UploadUrlResponse = {
-  file: RawFile
+  uploadUrl: string
   part: IngestionPart
 }
 
@@ -36,7 +48,7 @@ export async function generateUploadUrl(
       .returning()
 
     const fileId = uuid()
-    const s3Key = `raw-audio/${sessionId}/${fileId}.mp3`
+    const s3Key = `raw-audio/${sessionId}/${part.id}/${fileId}.mp3`
 
     const putCommand = new PutObjectCommand({
       Bucket: Resource['DDF-Bucket'].name,
@@ -46,16 +58,11 @@ export async function generateUploadUrl(
 
     const uploadUrl = await getSignedUrl(s3, putCommand, { expiresIn: 60 * 5 })
 
-    const [file] = await db
-      .insert(rawAudios)
-      .values({ id: fileId, partId: part.id, s3Key, uploadUrl })
-      .returning()
-
     return {
       statusCode: 200,
       body: {
         success: true,
-        data: { file, part },
+        data: { uploadUrl, part },
       },
     }
   } catch (error) {
@@ -88,7 +95,10 @@ export async function prepareAudio(
           eq(ingestionParts.sessionId, ingestionSessions.id),
         ),
       )
-      .leftJoin(rawAudios, eq(rawAudios.partId, ingestionParts.id))
+      .leftJoin(
+        processedAudioFiles,
+        eq(processedAudioFiles.partId, ingestionParts.id),
+      )
       .then(parseIngestionSessions)
 
     if (!session)
@@ -96,7 +106,41 @@ export async function prepareAudio(
 
     const part = session.parts.find(
       (part) => part.id === partId,
-    ) as IngestionPart
+    ) as IngestionSession['parts'][number]
+
+    if (!part.rawAudioFileS3Key) throw new Error('No file attached to part ⁉️')
+
+    const getCommand = new GetObjectCommand({
+      Bucket: Resource['DDF-Bucket'].name,
+      Key: part.rawAudioFileS3Key,
+    })
+    const rawAudioUrl = await getSignedUrl(s3, getCommand)
+
+    const s3OutputPath = `processed/${session.id}/${part.id}`
+    const localOutputPattern = path.join(tmpdir(), 'chunk-%03d.mp3')
+
+    // await new Promise<void>((resolve, reject) => {
+    //   ffmpeg(signedInputUrl)
+    //     .inputOptions([
+    //       '-reconnect 1',
+    //       '-reconnect_streamed 1',
+    //       '-reconnect_delay_max 5',
+    //     ])
+    //     // "Single-pass" loudness normalization (EBU R128)
+    //     .audioFilters('loudnorm=I=-16:TP=-1.5:LRA=11')
+    //     .outputOptions([
+    //       '-f segment', // Split into segments
+    //       '-segment_time 300', // 5 minutes (300 seconds) per chunk
+    //       '-c:a libmp3lame', // Re-encode to mp3
+    //       '-b:a 128k', // 128k bitrate
+    //       '-reset_timestamps 1', // Reset timestamps for each chunk
+    //     ])
+    //     .output(localOutputPattern)
+    //     .on('start', (cmd) => console.log('FFmpeg started:', cmd))
+    //     .on('end', () => resolve())
+    //     .on('error', (err) => reject(err))
+    //     .run()
+    // })
 
     return {
       statusCode: 200,
