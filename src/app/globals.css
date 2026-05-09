@@ -11,6 +11,7 @@
   --color-theme-text-subtle: var(--color-gray-500);
   --color-theme-border: var(--color-gray-200);
   --color-theme-error: var(--color-red-500);
+  --color-theme-outline: var(--color-blue-500);
 
   --color-brand-white: #f5f5f5;
   --color-brand-red: #c82228;
@@ -64,6 +65,10 @@
 
 @utility text-link {
   @apply text-theme-text-subtle leading-none uppercase font-semibold text-base underline;
+}
+
+@utility outlined {
+  @apply ring-2 ring-theme-outline outline-none;
 }
 
 ::selection {
