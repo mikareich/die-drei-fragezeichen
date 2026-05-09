@@ -1,1 +1,71 @@
 @import "tailwindcss";
+
+@theme {
+  --default-font-family: var(--font-geist-mono);
+
+  --color-theme-primary: var(--color-gray-950);
+  --color-theme-foreground: var(--color-gray-50);
+  --color-theme-background: var(--color-white);
+  --color-theme-background-accent: var(--color-gray-100);
+  --color-theme-text: var(--color-gray-700);
+  --color-theme-text-subtle: var(--color-gray-500);
+  --color-theme-border: var(--color-gray-200);
+  --color-theme-error: var(--color-red-500);
+
+  --color-brand-white: #f5f5f5;
+  --color-brand-red: #c82228;
+  --color-brand-blue: #60a9e8;
+
+  --text-5xl: 2.986rem;
+  --text-4xl: 2.488rem;
+  --text-3xl: 2.074rem;
+  --text-2xl: 1.728rem;
+  --text-xl: 1.44rem;
+  --text-lg: 1.25rem;
+  --text-base: 1rem;
+  --text-sm: 0.875rem;
+}
+
+@utility text-title {
+  @apply text-theme-text text-5xl font-bold;
+}
+
+@utility text-h1 {
+  @apply text-theme-text text-4xl font-bold;
+}
+
+@utility text-h2 {
+  @apply text-theme-text text-3xl font-bold;
+}
+
+@utility text-h3 {
+  @apply text-theme-text text-2xl font-bold;
+}
+
+@utility text-h4 {
+  @apply text-theme-text text-xl font-bold;
+}
+
+@utility text-large {
+  @apply text-theme-text leading-loose text-lg;
+}
+
+@utility text-default {
+  @apply text-theme-text leading-loose text-base;
+}
+
+@utility text-small {
+  @apply text-theme-text leading-loose text-sm;
+}
+
+@utility text-action {
+  @apply text-theme-text leading-none uppercase font-semibold text-base;
+}
+
+@utility text-link {
+  @apply text-theme-text-subtle leading-none uppercase font-semibold text-base underline;
+}
+
+::selection {
+  @apply bg-theme-primary text-theme-foreground;
+}
