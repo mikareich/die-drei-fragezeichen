@@ -64,7 +64,7 @@
 }
 
 @utility text-link {
-  @apply text-theme-text-subtle leading-none uppercase font-semibold text-base underline;
+  @apply text-action text-theme-text-subtle focus:outlined;
 }
 
 @utility outlined {
