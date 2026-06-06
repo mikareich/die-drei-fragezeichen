@@ -1,3 +1,3 @@
-export default function HomePage() {
-  return null;
+export default function HomePage(): React.ReactNode {
+  return "";
 }

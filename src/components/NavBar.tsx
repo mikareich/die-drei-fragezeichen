@@ -1,15 +1,15 @@
 import Link from "next/link";
-import Logo from "./Logo";
+import { Logo } from "./Logo.tsx";
 
 const LINKS = [
   { title: "Episoden", href: "/episodes" },
   { title: "Personen", href: "/people" },
   { title: "Account", href: "/account" },
-];
+] as const;
 
-export default function NavBar() {
+export function NavBar(): React.ReactNode {
   return (
-    <nav className="h-12 flex my-16 w-full gap-4 items-center">
+    <nav className="my-16 flex h-12 w-full items-center gap-4">
       <Link href="/" className="focus:outlined">
         <Logo className="shrink-0" />
       </Link>
@@ -17,7 +17,7 @@ export default function NavBar() {
       <span className="flex-1" />
 
       {LINKS.map(({ title, href }) => (
-        <Link key={href} href={href} className="text-link h-fit truncate">
+        <Link key={href} href={href} className="h-fit truncate text-link">
           {title}
         </Link>
       ))}

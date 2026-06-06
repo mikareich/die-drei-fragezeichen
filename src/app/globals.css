@@ -13,9 +13,9 @@
   --color-theme-error: var(--color-red-500);
   --color-theme-outline: var(--color-blue-500);
 
-  --color-brand-white: #f5f5f5;
-  --color-brand-red: #c82228;
-  --color-brand-blue: #60a9e8;
+  --color-brand-white: oklch(0.9702 0 0);
+  --color-brand-red: oklch(0.5382 0.1994 25.84);
+  --color-brand-blue: oklch(0.7134 0.1181 246.45);
 
   --text-5xl: 2.986rem;
   --text-4xl: 2.488rem;
@@ -60,7 +60,7 @@
 }
 
 @utility text-action {
-  @apply text-theme-text leading-none uppercase font-semibold text-base;
+  @apply text-theme-text uppercase font-semibold text-base;
 }
 
 @utility text-link {

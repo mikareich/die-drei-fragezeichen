@@ -1,12 +1,12 @@
-import cn from "~/utils/cn";
+import { cn } from "~/utils/cn.ts";
 
 export type LogoProps = React.ComponentProps<"div">;
 
-export default function Logo({ className, ...props }: LogoProps) {
+export function Logo({ className, ...props }: LogoProps): React.ReactNode {
   return (
     <div
       className={cn(
-        "text-nowrap bg-theme-primary px-4 py-3 font-bold w-fit select-none",
+        "w-fit select-none text-nowrap bg-theme-primary px-4 py-3 font-bold",
         className,
       )}
       {...props}

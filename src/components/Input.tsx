@@ -1,8 +1,15 @@
 import { cva } from "class-variance-authority";
 import React from "react";
-import cn from "~/utils/cn";
+import { cn } from "~/utils/cn.ts";
 
-export const inputContainerStyles = cva(
+type InputProps = React.ComponentProps<"input"> & {
+  prefixIcon?: React.ReactNode;
+  suffixIcon?: React.ReactNode;
+};
+
+export const inputContainerStyles: (
+  props: Pick<InputProps, "disabled">,
+) => string = cva(
   `flex items-center px-4 py-3 gap-3 bg-theme-background border border-theme-border
   leading-none text-theme-text w-min transition cursor-text`,
   {
@@ -16,23 +23,18 @@ export const inputContainerStyles = cva(
   },
 );
 
-export const inputStyles = cva(
-  "outline-0 flex-1 min-w-0 placeholder:text-theme-text-subtle disabled:cursor-not-allowed",
+export const inputStyles: () => string = cva(
+  "outline-0 flex-1 min-w-0 placeholder:text-theme-text-subtle h-4 disabled:cursor-not-allowed",
 );
 
-type InputProps = React.ComponentProps<"input"> & {
-  prefixIcon?: React.ReactNode;
-  suffixIcon?: React.ReactNode;
-};
-
-export default function Input({
+export function Input({
   prefixIcon,
   suffixIcon,
   className,
   id,
-  disabled,
+  disabled = false,
   ...props
-}: InputProps) {
+}: InputProps): React.ReactNode {
   const fallbackId = React.useId();
   id ||= fallbackId;
 
