@@ -16,8 +16,11 @@ export default function RootLayout({
   children,
 }: RootLayoutProps): React.ReactNode {
   return (
-    <html lang="de" className={`${geistMono.variable} antialiased`}>
-      <body className="container mx-auto max-sm:px-4">
+    <html
+      lang="de"
+      className={`${geistMono.variable} antialiased bg-theme-background text-theme-text`}
+    >
+      <body className="container mx-auto px-4">
         <NavBar />
 
         {children}

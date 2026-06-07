@@ -5,7 +5,7 @@
 
   --color-theme-primary: var(--color-gray-950);
   --color-theme-foreground: var(--color-gray-50);
-  --color-theme-background: var(--color-white);
+  --color-theme-background: var(--color-gray-50);
   --color-theme-background-accent: var(--color-gray-100);
   --color-theme-text: var(--color-gray-700);
   --color-theme-text-subtle: var(--color-gray-500);
@@ -26,6 +26,20 @@
   --text-base: 1rem;
   --text-slg: 1.125rem;
   --text-sm: 0.875rem;
+}
+
+.dark {
+  --color-theme-primary: var(--color-gray-950);
+  --color-theme-foreground: var(--color-gray-50);
+  --color-theme-background: var(--color-gray-950);
+  --color-theme-background-accent: var(--color-gray-900);
+  --color-theme-text: var(--color-gray-300);
+  --color-theme-text-subtle: var(--color-gray-500);
+  --color-theme-border: var(--color-gray-800);
+
+  *::selection {
+    @apply bg-gray-50 text-gray-950;
+  }
 }
 
 @utility text-title {
@@ -73,5 +87,11 @@
 }
 
 ::selection {
-  @apply bg-theme-primary text-theme-foreground;
+  @apply bg-gray-950 text-gray-50;
+}
+
+@custom-variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
 }
