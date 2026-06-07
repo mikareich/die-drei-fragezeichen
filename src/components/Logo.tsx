@@ -6,7 +6,7 @@ export function Logo({ className, ...props }: LogoProps): React.ReactNode {
   return (
     <div
       className={cn(
-        "w-fit select-none text-nowrap bg-theme-primary px-4 py-3 font-bold",
+        "w-fit select-none text-nowrap bg-theme-primary px-4 py-3 font-bold border border-theme-border",
         className,
       )}
       {...props}

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@toolwind/anchors";
 
 @theme {
   --default-font-family: var(--font-geist-mono);
