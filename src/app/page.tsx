@@ -1,9 +1,13 @@
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
+import React from "react";
 import { Button } from "~/components/Button.tsx";
 import { DataTable } from "~/components/DataTable/index.tsx";
+import { Input } from "~/components/Input.tsx";
 
 export default function HomePage(): React.ReactNode {
+  const id = React.useId();
+
   return (
     <main>
       <section className="mb-8">
@@ -16,7 +20,18 @@ export default function HomePage(): React.ReactNode {
         </p>
       </section>
 
-      <DataTable className="grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_auto_1fr_auto]">
+      <DataTable
+        id={id}
+        className="grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_auto_1fr_auto]"
+      >
+        <DataTable.Controls id={id}>
+          <Input
+            className="h-stretch w-full max-w-none sm:w-lg"
+            placeholder="Suche nach Episode..."
+            autoComplete="off"
+          />
+        </DataTable.Controls>
+
         <DataTable.Header>
           <DataTable.Item>Nummer</DataTable.Item>
           <DataTable.Item>Die Drei ???</DataTable.Item>
@@ -45,13 +60,15 @@ export default function HomePage(): React.ReactNode {
             einheimsen
           </DataTable.Item>
 
-          <DataTable.Item>
+          <DataTable.Item className="overflow-visible">
             <Button
               mode="outlined"
               asChild={true}
               suffixIcon={<ArrowRightIcon />}
             >
-              <Link href="#">Zur Folge</Link>
+              <Link href="#" className="not-sm:gap-0">
+                <span className="not-sm:hidden">Zur Folge</span>
+              </Link>
             </Button>
           </DataTable.Item>
         </DataTable.Row>
