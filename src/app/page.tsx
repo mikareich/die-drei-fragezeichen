@@ -29,7 +29,7 @@ export default function HomePage(): React.ReactNode {
       >
         <DataTable.Controls id={id}>
           <Input
-            className="h-stretch w-full max-w-none sm:w-lg"
+            className="h-fit w-full max-w-xl"
             placeholder="Suche nach Episode..."
             autoComplete="off"
           />

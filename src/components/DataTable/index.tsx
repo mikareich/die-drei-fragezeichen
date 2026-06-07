@@ -86,18 +86,24 @@ function DataTable({
   const { controls, header, rows } = extractChildren(children);
 
   return (
-    <div className="space-y-6">
-      <header className="border-b border-theme-border">{controls}</header>
+    <div className="space-y-6 grid gap-y-6 gap-x-2 grid-cols-[1fr_auto] w-full">
+      {controls}
 
-      <ol className={cn("grid grid-cols-4 gap-x-6 gap-y-4", className)}>
+      <ol
+        className={cn(
+          "grid col-span-2 row-start-2 grid-cols-4 gap-x-6 gap-y-4",
+          className,
+        )}
+      >
         {header}
 
         {rows}
       </ol>
 
-      <footer className="sm:hidden w-full flex justify-end gap-2">
-        <DataTablePagination form={id} />
-      </footer>
+      <DataTablePagination
+        className="col-span-2 sm:col-span-1 sm:col-start-2 sm:row-start-1"
+        form={id}
+      />
     </div>
   );
 }

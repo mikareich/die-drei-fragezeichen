@@ -7,22 +7,15 @@ type DataTableControlsProps = React.ComponentProps<"form"> & { id: string };
 
 export function DataTableControls({
   className,
-  children,
   id,
   ...props
 }: DataTableControlsProps): React.ReactNode {
   return (
     <form
       id={id}
-      className={cn("mb-2 flex items-center w-full sm:gap-2", className)}
+      className={cn("flex items-center size-full sm:gap-2", className)}
       {...props}
-    >
-      {children}
-
-      <span className="flex-1" />
-
-      <DataTablePagination className="not-sm:hidden" form={id} />
-    </form>
+    />
   );
 }
 
@@ -35,15 +28,18 @@ export function DataTablePagination({
   const pageSlice = [3, 4, 5, 6, 7];
 
   return (
-    <div className={cn("flex gap-2", className)} {...props}>
+    <div
+      className={cn("flex gap-2 items-center justify-end size-full", className)}
+      {...props}
+    >
       {pageSlice.map((pageNumber) => (
         <Button
           key={pageNumber}
           asChild={true}
           mode="outlined"
-          className="focus-within:outlined aspect-square w-auto"
+          className="focus-within:outlined aspect-square w-auto h-fit"
         >
-          <label>
+          <label className="leading-none">
             {pageNumber}
             <input
               form={form}
