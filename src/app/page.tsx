@@ -1,7 +1,7 @@
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { Button } from "~/components/Button.tsx";
-import { DataTable } from "~/components/DataTable.tsx";
+import { DataTable } from "~/components/DataTable/index.tsx";
 
 export default function HomePage(): React.ReactNode {
   return (
