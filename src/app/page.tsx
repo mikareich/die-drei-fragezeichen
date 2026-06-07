@@ -10,13 +10,16 @@ export default function HomePage(): React.ReactNode {
 
   return (
     <main>
-      <section className="mb-8">
-        <h1 className="text-h2 mb-4">Episodenverzeichnis</h1>
-        <p className="text-lg">
+      <section className="my-16">
+        <h1 className="text-h2 mb-4 wrap-normal">Episodenverzeichnis</h1>
+        <p className="text-large text-theme-text-subtle">
           Willkommen im ???-Archiv. Hier findest du alle Folgen der drei
           Detektive auf einen Blick – übersichtlich, durchsuchbar und sortiert.
-          Egal ob du alte Klassiker wiederentdecken oder aktuelle Fälle
-          nachholen willst, hier wirst du fündig.
+          <span className="not-sm:hidden">
+            {" "}
+            Egal ob du alte Klassiker wiederentdecken oder aktuelle Fälle
+            nachholen willst, hier wirst du fündig.
+          </span>
         </p>
       </section>
 

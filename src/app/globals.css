@@ -24,39 +24,40 @@
   --text-xl: 1.44rem;
   --text-lg: 1.25rem;
   --text-base: 1rem;
+  --text-slg: 1.125rem;
   --text-sm: 0.875rem;
 }
 
 @utility text-title {
-  @apply text-theme-text text-5xl font-bold;
+  @apply text-theme-text text-4xl sm:text-5xl font-bold;
 }
 
 @utility text-h1 {
-  @apply text-theme-text text-4xl font-bold;
+  @apply text-theme-text text-3xl sm:text-4xl font-bold;
 }
 
 @utility text-h2 {
-  @apply text-theme-text text-3xl font-bold;
+  @apply text-theme-text text-2xl sm:text-3xl font-bold;
 }
 
 @utility text-h3 {
-  @apply text-theme-text text-2xl font-bold;
+  @apply text-theme-text text-xl sm:text-2xl font-bold;
 }
 
 @utility text-h4 {
-  @apply text-theme-text text-xl font-bold;
+  @apply text-theme-text text-lg sm:text-xl font-bold;
 }
 
 @utility text-large {
-  @apply text-theme-text leading-loose text-lg;
+  @apply text-theme-text leading-relaxed sm:leading-loose text-slg sm:text-lg;
 }
 
 @utility text-default {
-  @apply text-theme-text leading-loose text-base;
+  @apply text-theme-text leading-relaxed sm:leading-loose text-base;
 }
 
 @utility text-small {
-  @apply text-theme-text leading-loose text-sm;
+  @apply text-theme-text leading-relaxed sm:leading-loose text-sm;
 }
 
 @utility text-action {
