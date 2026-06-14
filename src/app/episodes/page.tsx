@@ -5,7 +5,7 @@ import { Button } from "~/components/Button.tsx";
 import { DataTable } from "~/components/DataTable/index.tsx";
 import { Input } from "~/components/Input.tsx";
 
-export default function HomePage(): React.ReactNode {
+export default function EpisodesPage(): React.ReactNode {
   const id = React.useId();
 
   return (

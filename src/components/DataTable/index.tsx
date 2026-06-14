@@ -89,6 +89,8 @@ function DataTable({
     <div className="space-y-6 grid gap-y-6 gap-x-2 grid-cols-[1fr_auto] w-full">
       {controls}
 
+      <hr className="text-theme-border col-span-2 -my-6" />
+
       <ol
         className={cn(
           "grid col-span-2 row-start-2 grid-cols-4 gap-x-6 gap-y-4",

@@ -45,6 +45,7 @@ export function DataTablePagination({
               form={form}
               type="radio"
               name="page"
+              value={pageNumber}
               className="-z-1 absolute"
             />
           </label>
